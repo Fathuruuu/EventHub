@@ -1,0 +1,7 @@
+{
+  "smtp_host": "smtp.gmail.com",
+  "smtp_port": 587,
+  "gmail_user": "",
+  "gmail_app_password": "",
+  "sender_name": "EventHub Pro Security"
+}

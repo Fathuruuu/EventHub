@@ -1,0 +1,33 @@
+{
+  "name": "eventhub-pro",
+  "version": "2.0.0",
+  "description": "EventHub Pro - Platform Manajemen & Tiket Event Modern dengan Role-based Access, QR Check-in, Refund Workflow & Animasi Interaktif",
+  "main": "index.html",
+  "scripts": {
+    "start": "python server.py",
+    "dev": "npx serve -l 3000 .",
+    "cap:init": "npx cap init EventHub id.eventhub.app --web-dir .",
+    "android:init": "npx cap add android",
+    "android:open": "npx cap open android",
+    "android:sync": "npx cap sync android",
+    "ios:init": "npx cap add ios",
+    "ios:open": "npx cap open ios",
+    "ios:sync": "npx cap sync ios"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "^6.0.0",
+    "@capacitor/core": "^6.0.0",
+    "@capacitor/android": "^6.0.0",
+    "@capacitor/ios": "^6.0.0"
+  },
+  "keywords": [
+    "event",
+    "ticket",
+    "qr-scanner",
+    "organizer",
+    "refund-management",
+    "indonesia"
+  ],
+  "author": "KEPROF",
+  "license": "MIT"
+}

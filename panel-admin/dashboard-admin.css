@@ -1,0 +1,9 @@
+/**
+ * EventHub Pro - Admin Module Styles
+ */
+.admin-metric-card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-glass);
+  border-radius: var(--radius-lg);
+  padding: 22px;
+}

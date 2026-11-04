@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>EventHub Pro – Lembar Uji Coba E-Tiket QR Scanner</title>
+  <style>
+    :root {
+      --bg: #0b0f19;
+      --card-bg: #131b2e;
+      --border: #23304d;
+      --text: #f1f5f9;
+      --text-muted: #94a3b8;
+      --primary: #6366f1;
+      --success: #10b981;
+      --danger: #f43f5e;
+      --warning: #f59e0b;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+    body { background: var(--bg); color: var(--text); padding: 30px 20px; line-height: 1.5; }
+    .container { max-width: 900px; margin: 0 auto; }
+    header { text-align: center; margin-bottom: 30px; }
+    h1 { font-size: 2rem; font-weight: 800; margin-bottom: 8px; color: #fff; }
+    p.subtitle { color: var(--text-muted); font-size: 0.95rem; }
+    .badge { display: inline-block; padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; margin-bottom: 12px; }
+    .badge-info { background: rgba(99,102,241,0.2); color: #818cf8; border: 1px solid rgba(99,102,241,0.3); }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; margin-top: 24px; }
+    .ticket-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 16px; padding: 20px; position: relative; overflow: hidden; display: flex; flex-direction: column; align-items: center; text-align: center; }
+    .status-pill { position: absolute; top: 14px; right: 14px; padding: 4px 10px; border-radius: 8px; font-size: 0.7rem; font-weight: 800; letter-spacing: 0.5px; }
+    .status-valid { background: rgba(16,185,129,0.15); color: #34d399; border: 1px solid rgba(16,185,129,0.3); }
+    .status-used { background: rgba(245,158,11,0.15); color: #fbbf24; border: 1px solid rgba(245,158,11,0.3); }
+    .status-refund { background: rgba(244,63,94,0.15); color: #fb7185; border: 1px solid rgba(244,63,94,0.3); }
+    .qr-box { width: 180px; height: 180px; background: #fff; padding: 10px; border-radius: 14px; margin: 16px 0; display: flex; align-items: center; justify-content: center; box-shadow: 0 8px 24px rgba(0,0,0,0.4); }
+    .code-text { font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 1.1rem; font-weight: 800; letter-spacing: 2px; color: #a5b4fc; margin-bottom: 6px; }
+    .event-title { font-size: 1.05rem; font-weight: 700; margin-bottom: 4px; color: #fff; }
+    .tier-badge { font-size: 0.85rem; color: #38bdf8; font-weight: 600; margin-bottom: 8px; }
+    .holder-info { font-size: 0.8rem; color: var(--text-muted); border-top: 1px dashed var(--border); width: 100%; padding-top: 10px; margin-top: 6px; }
+    .btn-copy { margin-top: 10px; padding: 6px 14px; font-size: 0.75rem; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.15); color: #fff; border-radius: 8px; cursor: pointer; transition: all 0.2s; }
+    .btn-copy:hover { background: rgba(255,255,255,0.12); }
+    .instructions { background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 14px; padding: 20px; margin-bottom: 24px; }
+    .instructions h3 { font-size: 1rem; margin-bottom: 8px; color: #fff; }
+    .instructions ol { padding-left: 20px; color: var(--text-muted); font-size: 0.88rem; }
+    .instructions li { margin-bottom: 6px; }
+    @media print {
+      body { background: #fff; color: #000; }
+      .ticket-card { border: 1px solid #ccc; background: #fafafa; }
+      .code-text, .event-title { color: #000; }
+      .instructions, header .badge { display: none; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div class="badge badge-info">Tool Demonstrasi Scanner & POS Gate</div>
+      <h1>Lembar Uji Coba E-Tiket QR Scanner</h1>
+      <p class="subtitle">Buka halaman ini di HP Anda atau tab terpisah, lalu arahkan kamera scanner POS EventHub ke salah satu kode QR di bawah untuk menguji validasi pintu masuk.</p>
+    </header>
+
+    <div class="instructions">
+      <h3>🚀 Cara Menguji Scanner Kamera POS Kasir:</h3>
+      <ol>
+        <li>Masuk ke EventHub sebagai Penyelenggara (<code>promotor@nusantara.id</code> / <code>promotor123</code>).</li>
+        <li>Buka menu <b>Panel Penyelenggara</b> atau klik tombol bulat <b>Scan Tiket</b> di bilah bawah.</li>
+        <li>Arahkan kamera ke salah satu QR Code di bawah, atau ketik kode manualnya jika kamera tidak aktif.</li>
+        <li>Perhatikan respons sistem: suara chime audio nada procedural, deteksi badge Fast-Track, dan status tiket real-time.</li>
+      </ol>
+    </div>
+
+    <div class="grid">
+      <!-- TIKET 1: VALID FIRST SCAN -->
+      <div class="ticket-card">
+        <span class="status-pill status-valid">SIAP SCAN (VALID)</span>
+        <div class="event-title">Pesta Musik Indie Jakarta 2026</div>
+        <div class="tier-badge">⚡ VIP Soundcheck Experience</div>
+        <div class="code-text" id="tkt1-code">TKT-DEMO-VALID-01</div>
+        <div class="qr-box" id="qr-tkt1"></div>
+        <div class="holder-info">
+          Pemegang: <b>Budi Pratama VIP</b><br>
+          Gate: <b>⚡ Fast-Track VIP (Gate A)</b>
+        </div>
+        <button class="btn-copy" onclick="copyCode('TKT-DEMO-VALID-01')">📋 Salin Kode Manual</button>
+      </div>
+
+      <!-- TIKET 2: VALID FIRST SCAN -->
+      <div class="ticket-card">
+        <span class="status-pill status-valid">SIAP SCAN (VALID)</span>
+        <div class="event-title">Nusantara Esports Championship 2026</div>
+        <div class="tier-badge">⚡ VIP Front Row Player Stage</div>
+        <div class="code-text" id="tkt2-code">TKT-DEMO-VALID-02</div>
+        <div class="qr-box" id="qr-tkt2"></div>
+        <div class="holder-info">
+          Pemegang: <b>Budi Pratama VIP</b><br>
+          Gate: <b>⚡ Fast-Track VIP Gate</b>
+        </div>
+        <button class="btn-copy" onclick="copyCode('TKT-DEMO-VALID-02')">📋 Salin Kode Manual</button>
+      </div>
+
+      <!-- TIKET 3: ALREADY USED -->
+      <div class="ticket-card">
+        <span class="status-pill status-used">SUDAH CHECK-IN (USED)</span>
+        <div class="event-title">Pesta Musik Indie Jakarta 2026</div>
+        <div class="tier-badge">Presale Regular Gate A</div>
+        <div class="code-text" id="tkt3-code">TKT-DEMO-USED-01</div>
+        <div class="qr-box" id="qr-tkt3"></div>
+        <div class="holder-info">
+          Pemegang: <b>Siti Rahma</b><br>
+          Waktu Check-in: <b>14:15 WIB (Gate 1)</b>
+        </div>
+        <button class="btn-copy" onclick="copyCode('TKT-DEMO-USED-01')">📋 Salin Kode Manual</button>
+      </div>
+
+      <!-- TIKET 4: REFUNDED -->
+      <div class="ticket-card">
+        <span class="status-pill status-refund">REFUNDED / BATAL</span>
+        <div class="event-title">Pesta Musik Indie Jakarta 2026</div>
+        <div class="tier-badge">Presale Regular Gate A</div>
+        <div class="code-text" id="tkt4-code">TKT-DEMO-REFUND-01</div>
+        <div class="qr-box" id="qr-tkt4"></div>
+        <div class="holder-info">
+          Pemegang: <b>Reza Kurniawan</b><br>
+          Status: <b>Dana Telah Dikembalikan (Batal)</b>
+        </div>
+        <button class="btn-copy" onclick="copyCode('TKT-DEMO-REFUND-01')">📋 Salin Kode Manual</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="../sistem-utama/generator-qr.js"></script>
+  <script>
+    function renderQr(elId, text) {
+      var box = document.getElementById(elId);
+      if (box && window.EventQR) {
+        box.innerHTML = window.EventQR.generateSvg(text, { cellSize: 5, margin: 1 });
+      }
+    }
+    window.addEventListener('DOMContentLoaded', function() {
+      renderQr('qr-tkt1', 'TKT-DEMO-VALID-01');
+      renderQr('qr-tkt2', 'TKT-DEMO-VALID-02');
+      renderQr('qr-tkt3', 'TKT-DEMO-USED-01');
+      renderQr('qr-tkt4', 'TKT-DEMO-REFUND-01');
+    });
+    function copyCode(code) {
+      navigator.clipboard.writeText(code).then(function() {
+        alert('Kode tiket ' + code + ' berhasil disalin ke clipboard!');
+      });
+    }
+  </script>
+</body>
+</html>

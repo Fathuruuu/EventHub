@@ -1,0 +1,46 @@
+name: Release - Package & Publish Assets
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+jobs:
+  build-release:
+    name: Build & Package Distribution
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Initialize clean database & seed demo dataset
+        run: |
+          python -c "import database; database.seed_demo_data(force=True)"
+
+      - name: Create Distribution Archive
+        run: |
+          TAG_NAME="${GITHUB_REF#refs/tags/}"
+          if [ -z "$TAG_NAME" ] || [ "$TAG_NAME" = "refs/heads/main" ]; then
+            TAG_NAME="latest"
+          fi
+          ZIP_NAME="eventhub-pro-${TAG_NAME}.zip"
+          zip -r "$ZIP_NAME" . -x "*.git*" "uploads/*" "__pycache__/*" "*.log" "node_modules/*"
+          echo "ZIP_NAME=$ZIP_NAME" >> $GITHUB_ENV
+
+      - name: Publish GitHub Release
+        uses: softprops/action-gh-release@v2
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          files: ${{ env.ZIP_NAME }}
+          generate_release_notes: true
+          draft: false
+          prerelease: false

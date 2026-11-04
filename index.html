@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>EventHub – Platform Tiket & Event Terpercaya</title>
+  <meta name="description" content="Platform Manajemen & Pembelian Tiket Acara Modern dengan Role-based Access, QR Check-in, Refund Workflow & Animasi Interaktif">
+  <link rel="icon" type="image/svg+xml" href="assets/logo.svg">
+  <!-- PWA & Mobile Web App Manifest for Android & iOS -->
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#090d16">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="EventHub">
+  <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+  <!-- Google Fonts: Plus Jakarta Sans & JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Stylesheet Modular Desain & Layout -->
+  <link rel="stylesheet" href="sistem-utama/tema-desain.css?v=5.0">
+  <link rel="stylesheet" href="sistem-utama/tata-letak-pos.css?v=5.0">
+  <link rel="stylesheet" href="sistem-utama/moneyflow.css?v=5.0">
+  <link rel="stylesheet" href="otentikasi-akun/auth.css?v=5.0">
+  <link rel="stylesheet" href="sistem-peserta/peserta.css?v=5.0">
+  <link rel="stylesheet" href="sistem-pembayaran/pembayaran.css?v=5.0">
+  <link rel="stylesheet" href="panel-penyelenggara/kasir-organizer.css?v=5.0">
+  <link rel="stylesheet" href="panel-admin/dashboard-admin.css?v=5.0">
+</head>
+<body>
+  <!-- App Splash & Transition Preloader Screen -->
+  <div id="app-preloader" class="app-preloader">
+    <div class="preloader-content">
+      <div class="preloader-logo-ring">
+        <div class="preloader-ring-spin"></div>
+        <div class="preloader-icon-box">
+          <img src="assets/logo.svg" alt="EventHub Logo" class="preloader-logo-img">
+        </div>
+      </div>
+      <div class="preloader-brand">
+        Event<span class="highlight">Hub</span>
+      </div>
+      <p id="preloader-status" class="preloader-text">Memuat sistem tiket event...</p>
+      <div class="preloader-progress-track">
+        <div id="preloader-progress-bar" class="preloader-progress-fill"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Ambient Moving Glowing Background -->
+  <div class="bg-ambient" aria-hidden="true">
+    <div class="ambient-orb ambient-orb-1"></div>
+    <div class="ambient-orb ambient-orb-2"></div>
+    <div class="ambient-orb ambient-orb-3"></div>
+  </div>
+
+  <!-- Header Navigation Bar -->
+  <div id="app-header-container"></div>
+
+  <!-- Main View Container -->
+  <main id="app-root"></main>
+
+  <!-- Floating Bottom Action Bar with Center Hero Scan Ticket Button -->
+  <div id="app-bottom-bar-container"></div>
+  <!-- Interactive Modal Container -->
+  <div id="modal-container"></div>
+
+  <!-- Toast Notification Stack -->
+  <div id="toast-container"></div>
+  <!-- Sistem Utama & Utilitas Core -->
+  <script src="sistem-utama/database.js?v=5.0"></script>
+  <script src="sistem-utama/efek-suara.js?v=5.0"></script>
+  <script src="sistem-utama/efek-selebrasi.js?v=5.0"></script>
+  <script src="sistem-utama/generator-qr.js?v=5.0"></script>
+  <script src="scanner-kamera/jsqr-engine.js?v=5.0"></script>
+  <script src="scanner-kamera/camera-scanner.js?v=5.0"></script>
+  <script src="sistem-utama/i18n-bahasa.js?v=5.3"></script>
+  <script src="sistem-utama/navigasi-router.js?v=5.3"></script>
+  <script src="sistem-utama/moneyflow.js?v=5.0"></script>
+
+  <!-- Modul Fitur Terpisah (Modular & Mudah Dipahami) -->
+  <script src="otentikasi-akun/auth.js?v=5.4"></script>
+  <script src="sistem-peserta/peserta.js?v=5.4"></script>
+  <script src="sistem-peserta/favorit-peserta.js?v=5.4"></script>
+  <script src="sistem-peserta/pesan-peserta.js?v=5.4"></script>
+  <script src="sistem-peserta/fast-track.js?v=5.4"></script>
+  <script src="sistem-pembayaran/pembayaran.js?v=5.4"></script>
+  <script src="panel-penyelenggara/kasir-organizer.js?v=5.4"></script>
+  <script src="panel-penyelenggara/pesan-organizer.js?v=5.4"></script>
+  <script src="panel-admin/dashboard-admin.js?v=5.4"></script>
+  <script src="panel-admin/approval-penyelenggara.js?v=5.4"></script>
+  <script src="panel-admin/pantau-aktivitas.js?v=5.4"></script>
+  <script src="panel-admin/audit-feedback.js?v=5.4"></script>
+  <!-- Koordinator Aplikasi Utama -->
+  <script src="sistem-utama/koordinator-aplikasi.js?v=5.5"></script>
+
+  <!-- PWA Service Worker Registration -->
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', function() {
+        navigator.serviceWorker.register('./sw.js').catch(function(e) {});
+      });
+    }
+  </script>
+</body>
+</html>

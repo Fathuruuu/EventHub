@@ -1,0 +1,53 @@
+# EventHub Pro - Git Ignore Configuration
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.pytest_cache/
+
+# SQLite journals & temporary runtime storage
+*.db-journal
+*.db-wal
+*.db-shm
+
+# Log files generated at runtime
+*.log
+firewall_security.log
+outbox_emails.log
+
+# Uploaded user media (keep .gitkeep)
+uploads/*
+!uploads/.gitkeep
+
+# Node & package dependencies
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# Capacitor & Mobile builds
+android/
+ios/
+.capacitor/
+build/
+dist/
+
+# OS-generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+[Dd]esktop.ini
+
+# IDE & Editor settings
+.idea/
+.vscode/
+*.swp
+*.swo
+*~

@@ -1,0 +1,77 @@
+{
+  "version": 1,
+  "system": "EventHub Pro Enterprise Ticket Engine",
+  "nodes": [
+    {
+      "id": "node_catalog",
+      "label": "1. Jelajah Acara & Pilih Kategori",
+      "type": "start",
+      "desc": "Katalog Acara Multi-Kategori & Pencarian Real-Time"
+    },
+    {
+      "id": "node_auth_gate",
+      "label": "2. Autentikasi Pengguna (RBAC)",
+      "type": "process",
+      "desc": "Verifikasi Akun, Role Gate, & Fast-Track VIP Status"
+    },
+    {
+      "id": "node_checkout",
+      "label": "3. Checkout & Promo Voucher",
+      "type": "process",
+      "desc": "Kalkulasi Diskon, Biaya Layanan, & Potongan Member VIP"
+    },
+    {
+      "id": "node_payment",
+      "label": "4. Simulasi Pembayaran QRIS / VA",
+      "type": "action",
+      "desc": "Penerbitan Kode Transaksi & Animasi Confetti"
+    },
+    {
+      "id": "node_ticket_issuance",
+      "label": "5. Penerbitan E-Tiket & Kode QR",
+      "type": "action",
+      "desc": "QR SVG Rendering & Token Enkripsi Gate"
+    },
+    {
+      "id": "node_gate_scanner",
+      "label": "6. Pos Kasir / WebRTC Scanner Gate",
+      "type": "process",
+      "desc": "Deteksi Kamera Real-Time (jsQR) & Verifikasi Kode"
+    },
+    {
+      "id": "node_valid_entry",
+      "label": "Akses Diberikan (SUCCESS)",
+      "type": "success",
+      "desc": "Audio Chime Prosedural & Tiket Ditandai Used"
+    },
+    {
+      "id": "node_duplicate_entry",
+      "label": "Tolak: Tiket Telah Digunakan",
+      "type": "error",
+      "desc": "Audio Buzz & Log Percobaan Check-in Ganda"
+    },
+    {
+      "id": "node_refund_workflow",
+      "label": "7. Alur Pengajuan Refund",
+      "type": "process",
+      "desc": "Pengajuan Peserta -> Verifikasi Penyelenggara -> Rekening Tujuan"
+    },
+    {
+      "id": "node_admin_audit",
+      "label": "8. Enterprise WAF & Audit Log",
+      "type": "security",
+      "desc": "Inspeksi SQLi, XSS, Brute-force & Masking Akun Root"
+    }
+  ],
+  "edges": [
+    { "from": "node_catalog", "to": "node_auth_gate" },
+    { "from": "node_auth_gate", "to": "node_checkout" },
+    { "from": "node_checkout", "to": "node_payment" },
+    { "from": "node_payment", "to": "node_ticket_issuance" },
+    { "from": "node_ticket_issuance", "to": "node_gate_scanner" },
+    { "from": "node_gate_scanner", "to": "node_valid_entry", "condition": "valid_unused" },
+    { "from": "node_gate_scanner", "to": "node_duplicate_entry", "condition": "already_used" },
+    { "from": "node_ticket_issuance", "to": "node_refund_workflow", "condition": "user_requests_refund" },
+    { "from": "node_gate_scanner", "to": "node_admin_audit" }
+  ]
+}

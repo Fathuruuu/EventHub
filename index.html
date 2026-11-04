@@ -80,21 +80,29 @@
   <script src="sistem-utama/moneyflow.js?v=5.0"></script>
 
   <!-- Modul Fitur Terpisah (Modular & Mudah Dipahami) -->
-  <script src="otentikasi-akun/auth.js?v=5.4"></script>
-  <script src="sistem-peserta/peserta.js?v=5.4"></script>
-  <script src="sistem-peserta/favorit-peserta.js?v=5.4"></script>
-  <script src="sistem-peserta/pesan-peserta.js?v=5.4"></script>
-  <script src="sistem-peserta/fast-track.js?v=5.4"></script>
-  <script src="sistem-pembayaran/pembayaran.js?v=5.4"></script>
-  <script src="panel-penyelenggara/kasir-organizer.js?v=5.4"></script>
-  <script src="panel-penyelenggara/pesan-organizer.js?v=5.4"></script>
-  <script src="panel-admin/dashboard-admin.js?v=5.4"></script>
-  <script src="panel-admin/approval-penyelenggara.js?v=5.4"></script>
-  <script src="panel-admin/pantau-aktivitas.js?v=5.4"></script>
-  <script src="panel-admin/audit-feedback.js?v=5.4"></script>
+  <script src="otentikasi-akun/auth.js?v=6.0"></script>
+  <script src="sistem-peserta/peserta.js?v=6.0"></script>
+  <script src="sistem-peserta/favorit-peserta.js?v=6.0"></script>
+  <script src="sistem-peserta/pesan-peserta.js?v=6.0"></script>
+  <script src="sistem-peserta/fast-track.js?v=6.0"></script>
+  <script src="sistem-pembayaran/pembayaran.js?v=6.0"></script>
+  <script src="panel-penyelenggara/kasir-organizer.js?v=6.0"></script>
+  <script src="panel-penyelenggara/pesan-organizer.js?v=6.0"></script>
+  <script src="panel-admin/dashboard-admin.js?v=6.0"></script>
+  <script src="panel-admin/approval-penyelenggara.js?v=6.0"></script>
+  <script src="panel-admin/pantau-aktivitas.js?v=6.0"></script>
+  <script src="panel-admin/audit-feedback.js?v=6.0"></script>
   <!-- Koordinator Aplikasi Utama -->
-  <script src="sistem-utama/koordinator-aplikasi.js?v=5.5"></script>
-
+  <script src="sistem-utama/koordinator-aplikasi.js?v=6.0"></script>
+  <script>
+    // Safety fallback: pastikan preloader selalu menghilang maksimal dalam 2 detik
+    setTimeout(function() {
+      var pl = document.getElementById('app-preloader');
+      if (pl && !pl.classList.contains('fade-out')) {
+        pl.classList.add('fade-out');
+      }
+    }, 1800);
+  </script>
   <!-- PWA Service Worker Registration -->
   <script>
     if ('serviceWorker' in navigator) {

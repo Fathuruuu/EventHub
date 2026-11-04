@@ -2355,7 +2355,19 @@
       admin: EventAdmin.renderAdminView
     };
     var renderFn = viewMap[App.currentRoute] || EventParticipant.renderHomeView;
-    mainEl.innerHTML = renderFn();
+    try {
+      mainEl.innerHTML = renderFn();
+    } catch (err) {
+      console.error('Render error:', err);
+      mainEl.innerHTML = '<div class="card-panel" style="text-align:center; padding:40px"><h3>Terjadi kendala saat memuat halaman</h3><p style="color:var(--text-muted)">' + err.message + '</p><button class="btn-primary" style="width:auto; margin-top:16px" onclick="location.reload()">Muat Ulang Halaman</button></div>';
+    } finally {
+      var preloader = document.getElementById('app-preloader');
+      if (preloader) {
+        setTimeout(function() {
+          preloader.classList.add('fade-out');
+        }, 850);
+      }
+    }
 
     // Render Floating Bottom Action Bar with Center Hero Scan Button
     var bottomEl = document.getElementById('app-bottom-bar-container');
@@ -2364,11 +2376,16 @@
 
   EventHub.renderApp = renderApp;
 
-  window.addEventListener('DOMContentLoaded', function() {
+  function initApp() {
     renderApp();
-    // Smooth splash preloader animation on initial page load
     Router.triggerPreloader('Menyiapkan Sistem Tiket Event...', 850);
-  });
+  }
+
+  if (document.readyState === 'loading') {
+    window.addEventListener('DOMContentLoaded', initApp);
+  } else {
+    initApp();
+  }
 
   document.addEventListener('keydown', function(e) {
     if (e.key === 'Escape' && App.activeModal) {

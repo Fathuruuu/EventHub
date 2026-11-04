@@ -14,6 +14,7 @@
 
   var ParticipantModule = {
     renderHomeView: function() {
+      var user = Store.getCurrentUser();
       var events = Store.getEvents();
       var categories = ['Semua', 'Musik', 'Teknologi', 'Gaming', 'Workshop'];
 

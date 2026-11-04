@@ -15,6 +15,24 @@
 
   var currentActiveTab = 'charges'; // 'charges' | 'history' | 'refunds'
 
+  function parseDateTime(str) {
+    if (!str) {
+      var d = new Date();
+      return {
+        date: String(d.getDate()).padStart(2, '0') + '/' + String(d.getMonth() + 1).padStart(2, '0') + '/' + d.getFullYear(),
+        time: String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0') + ' WIB'
+      };
+    }
+    var parts = String(str).trim().split(' ');
+    var datePart = parts[0] || '';
+    var timePart = parts.slice(1).join(' ') || '12:00 WIB';
+    if (datePart.indexOf('-') > 0) {
+      var p = datePart.split('-');
+      if (p.length === 3) datePart = p[2] + '/' + p[1] + '/' + p[0];
+    }
+    return { date: datePart, time: timePart };
+  }
+
   var OrganizerModule = {
     setActiveTab: function(tab) {
       if (Sound) Sound.playClick();
@@ -230,34 +248,63 @@
 
           // Bottom Check-In / Payment Summary Table
           '<div style="margin-top:24px">',
-            '<h3 style="font-size:1.05rem; font-weight:800; margin-bottom:12px; color:#ffffff">Check-in & Tiket Terakhir</h3>',
+            '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; flex-wrap:wrap; gap:8px">',
+              '<div>',
+                '<h3 style="font-size:1.1rem; font-weight:800; margin:0; color:#ffffff">Tabel Laporan Transaksi & Pembelian Tiket</h3>',
+                '<small style="color:#64748b">Rekapitulasi nomor urut, tanggal, jam, bruto, fee 10%, dan netto dengan rumus matematis</small>',
+              '</div>',
+              '<button class="btn-secondary" style="padding:6px 14px; font-size:0.78rem" onclick="EventOrganizer.exportChargesCSV(\'' + currentEvent.id + '\')">📄 Ekspor CSV</button>',
+            '</div>',
             '<div class="pos-table-card">',
-              '<table class="pos-table">',
+              '<table class="pos-table" id="pos-charges-table">',
                 '<thead>',
                   '<tr>',
-                    '<th>Waktu</th>',
-                    '<th>Kode Tiket</th>',
+                    '<th style="text-align:center; width:45px">No.</th>',
+                    '<th>Tanggal</th>',
+                    '<th>Jam</th>',
+                    '<th>No. Tiket / Ref</th>',
                     '<th>Peserta</th>',
+                    '<th>Kategori Tiket</th>',
                     '<th>Metode Bayar</th>',
-                    '<th style="text-align:right">Nominal</th>',
-                    '<th>Status Check-In</th>',
+                    '<th style="text-align:right">Harga Bruto</th>',
+                    '<th style="text-align:right">Komisi (10%)</th>',
+                    '<th style="text-align:right">Netto (90%)</th>',
+                    '<th style="text-align:center">Status Check-In</th>',
                   '</tr>',
                 '</thead>',
                 '<tbody>'
         );
 
+        var chargesTotalBruto = 0;
+        var chargesTotalFee = 0;
+        var chargesTotalNet = 0;
+
         if (validTickets.length === 0) {
-          html.push('<tr><td colspan="6" style="text-align:center; padding:30px; color:#64748b">Belum ada transaksi tiket.</td></tr>');
+          html.push('<tr><td colspan="11" style="text-align:center; padding:32px; color:#64748b">Belum ada transaksi tiket untuk acara ini.</td></tr>');
         } else {
-          validTickets.slice(0, 6).forEach(function(t) {
+          validTickets.forEach(function(t, idx) {
+            var no = idx + 1;
+            var dt = parseDateTime(t.createdAt);
+            var bruto = Number(t.price) || 0;
+            var fee = Math.round(bruto * 0.10);
+            var net = bruto - fee;
+            chargesTotalBruto += bruto;
+            chargesTotalFee += fee;
+            chargesTotalNet += net;
+
             html.push(
               '<tr>',
-                '<td><small style="color:#64748b">' + (t.createdAt || 'Hari Ini') + '</small></td>',
+                '<td style="text-align:center; color:#94a3b8; font-weight:700">' + no + '</td>',
+                '<td><span style="color:#ffffff; font-weight:600">' + dt.date + '</span></td>',
+                '<td><span style="color:#a5b4fc; font-family:var(--font-mono)">' + dt.time + '</span></td>',
                 '<td><code style="font-family:var(--font-mono); font-weight:700; color:#38bdf8">' + t.code + '</code></td>',
-                '<td><b>' + t.buyerName + '</b><br><small style="color:#64748b">' + t.buyerEmail + '</small></td>',
-                '<td>' + t.paymentMethod + '</td>',
-                '<td style="text-align:right"><b>' + formatRp(t.price) + '</b></td>',
-                '<td>' + (t.status === 'used' ? '<span style="color:#10b981; font-weight:700">✓ Sudah Masuk</span>' : '<span style="color:#64748b">○ Belum Check-in</span>') + '</td>',
+                '<td><b>' + (t.buyerName || '-') + '</b><br><small style="color:#64748b">' + (t.buyerEmail || '-') + '</small></td>',
+                '<td>' + (t.tierName || 'Tiket') + '</td>',
+                '<td><span style="color:#e2e8f0; font-size:0.8rem">' + (t.paymentMethod || 'QRIS') + '</span></td>',
+                '<td style="text-align:right; font-weight:700; color:#ffffff">' + formatRp(bruto) + '</td>',
+                '<td style="text-align:right; color:#f59e0b; font-size:0.82rem">- ' + formatRp(fee) + '</td>',
+                '<td style="text-align:right; font-weight:800; color:#34d399">' + formatRp(net) + '</td>',
+                '<td style="text-align:center">' + (t.status === 'used' ? '<span style="color:#10b981; font-weight:700">✓ Sudah Masuk</span>' : '<span style="color:#64748b">○ Belum Check-in</span>') + '</td>',
               '</tr>'
             );
           });
@@ -265,46 +312,69 @@
 
         html.push(
                 '</tbody>',
+                '<tfoot>',
+                  '<tr style="background:rgba(99,102,241,0.1); font-weight:800; border-top:2px solid rgba(99,102,241,0.3)">',
+                    '<td colspan="7" style="padding:12px; text-align:right; color:#ffffff">TOTAL REKAPITULASI (Σ):</td>',
+                    '<td style="padding:12px; text-align:right; color:#38bdf8">' + formatRp(chargesTotalBruto) + '</td>',
+                    '<td style="padding:12px; text-align:right; color:#f59e0b">- ' + formatRp(chargesTotalFee) + '</td>',
+                    '<td style="padding:12px; text-align:right; color:#34d399; font-size:0.95rem">' + formatRp(chargesTotalNet) + '</td>',
+                    '<td style="padding:12px; text-align:center; color:#a5b4fc">' + validTickets.length + ' Tiket</td>',
+                  '</tr>',
+                '</tfoot>',
               '</table>',
-              '<div class="pos-table-footer">',
-                '<span class="pos-total-label">TOTAL TIKET TERBIT:</span>',
-                '<span class="pos-total-val" style="color:#10b981">' + validTickets.length + ' Tiket</span>',
+              '<div style="padding:10px 16px; background:rgba(0,0,0,0.25); border-top:1px solid rgba(255,255,255,0.06); font-size:0.75rem; color:#94a3b8; display:flex; justify-content:space-between; flex-wrap:wrap; gap:8px">',
+                '<span>📐 <b>Rumus Net Payout:</b> <code>Penerimaan Bersih = Harga Bruto - Komisi Platform (10%) = 90%</code></span>',
+                '<span><b>Margin Netto:</b> <code>' + (chargesTotalBruto > 0 ? ((chargesTotalNet / chargesTotalBruto) * 100).toFixed(1) : '90.0') + '%</code></span>',
               '</div>',
             '</div>',
           '</div>'
         );
       } else if (currentActiveTab === 'history') {
         // Tab 2: Gate Check-in Roster
+        var checkInPct = validTickets.length > 0 ? ((checkedInTickets.length / validTickets.length) * 100).toFixed(1) : '0.0';
         html.push(
           '<div class="pos-table-card">',
-            '<div style="padding:16px 20px; display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid rgba(255,255,255,0.08)">',
-              '<div><b>Daftar Kehadiran Gate Masuk</b><br><small style="color:#64748b">Seluruh tiket yang telah berhasil diverifikasi</small></div>',
+            '<div style="padding:16px 20px; display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid rgba(255,255,255,0.08); flex-wrap:wrap; gap:10px">',
+              '<div>',
+                '<b style="font-size:1.05rem">Daftar Kehadiran Gate Masuk (' + checkedInTickets.length + ' Peserta Check-in)</b><br>',
+                '<small style="color:#64748b">Rekap nomor urut, tanggal, jam check-in, dan rasio kehadiran</small>',
+              '</div>',
               '<button class="btn-secondary" style="padding:6px 14px; font-size:0.8rem" onclick="EventHub.exportAttendeeCSV(\'' + currentEvent.id + '\')">📄 Ekspor CSV</button>',
             '</div>',
             '<table class="pos-table">',
               '<thead>',
                 '<tr>',
-                  '<th>Waktu Check-in</th>',
-                  '<th>Kode Tiket</th>',
+                  '<th style="text-align:center; width:45px">No.</th>',
+                  '<th>Tanggal Check-in</th>',
+                  '<th>Jam Check-in</th>',
+                  '<th>No. Tiket / Ref</th>',
                   '<th>Nama Peserta</th>',
+                  '<th>Kontak HP / WA</th>',
                   '<th>Kategori Tiket</th>',
                   '<th>Gate Scanner</th>',
+                  '<th style="text-align:center">Status</th>',
                 '</tr>',
               '</thead>',
               '<tbody>'
         );
 
         if (checkedInTickets.length === 0) {
-          html.push('<tr><td colspan="5" style="text-align:center; padding:30px; color:#64748b">Belum ada peserta yang check-in pada gate masuk.</td></tr>');
+          html.push('<tr><td colspan="9" style="text-align:center; padding:32px; color:#64748b">Belum ada peserta yang check-in pada gate masuk.</td></tr>');
         } else {
-          checkedInTickets.forEach(function(t) {
+          checkedInTickets.forEach(function(t, idx) {
+            var no = idx + 1;
+            var dt = parseDateTime(t.checkedInAt || t.usedAt);
             html.push(
               '<tr>',
-                '<td><span style="color:#10b981; font-weight:700">' + (t.usedAt || 'Hari Ini') + '</span></td>',
-                '<td><code>' + t.code + '</code></td>',
-                '<td><b>' + t.buyerName + '</b><br><small style="color:#64748b">' + t.buyerPhone + '</small></td>',
+                '<td style="text-align:center; color:#94a3b8; font-weight:700">' + no + '</td>',
+                '<td><span style="color:#ffffff; font-weight:600">' + dt.date + '</span></td>',
+                '<td><span style="color:#34d399; font-family:var(--font-mono); font-weight:700">' + dt.time + '</span></td>',
+                '<td><code style="font-family:var(--font-mono); color:#38bdf8">' + t.code + '</code></td>',
+                '<td><b>' + t.buyerName + '</b></td>',
+                '<td><span style="color:#94a3b8">' + (t.buyerPhone || '-') + '</span></td>',
                 '<td>' + t.tierName + '</td>',
-                '<td><span style="color:#94a3b8">Gate #1</span></td>',
+                '<td><span style="color:#a5b4fc">Gate #1 (POS)</span></td>',
+                '<td style="text-align:center"><span style="background:rgba(16,185,129,0.15); color:#34d399; padding:3px 8px; border-radius:6px; font-size:0.75rem; font-weight:700">✓ Hadir</span></td>',
               '</tr>'
             );
           });
@@ -312,7 +382,16 @@
 
         html.push(
               '</tbody>',
+              '<tfoot>',
+                '<tr style="background:rgba(16,185,129,0.08); font-weight:700; border-top:2px solid rgba(16,185,129,0.25)">',
+                  '<td colspan="6" style="padding:12px; text-align:right">TOTAL KEHADIRAN GATE MASUK:</td>',
+                  '<td colspan="3" style="padding:12px; color:#34d399"><b>' + checkedInTickets.length + ' / ' + validTickets.length + ' Peserta (' + checkInPct + '%)</b></td>',
+                '</tr>',
+              '</tfoot>',
             '</table>',
+            '<div style="padding:10px 16px; background:rgba(0,0,0,0.2); font-size:0.75rem; color:#94a3b8">',
+              '📐 <b>Rumus Rasio Kehadiran:</b> <code>Persentase Hadir = (Jumlah Tiket Check-in ÷ Total Tiket Terbit) × 100% = ' + checkInPct + '%</code>',
+            '</div>',
           '</div>'
         );
       } else if (currentActiveTab === 'refunds') {
@@ -610,7 +689,30 @@
         if (Sound) Sound.playError();
         Router.showToast(err.message, 'error');
       }
-    }
+    },
+    exportChargesCSV: function(eventId) {
+      var table = document.getElementById('pos-charges-table');
+      if (!table) return;
+      var rows = table.querySelectorAll('tr');
+      var csv = [];
+      rows.forEach(function(row) {
+        var cols = row.querySelectorAll('th, td');
+        var rowData = [];
+        cols.forEach(function(col) {
+          var val = col.innerText.replace(/(\r\n|\n|\r)/gm, ' ').replace(/"/g, '""').trim();
+          rowData.push('"' + val + '"');
+        });
+        if (rowData.length) csv.push(rowData.join(','));
+      });
+      var blob = new Blob([csv.join('\n')], { type: 'text/csv;charset=utf-8;' });
+      var link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.setAttribute('download', 'Laporan_Transaksi_' + (eventId || 'POS') + '_' + Date.now() + '.csv');
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      Router.showToast('Laporan CSV transaksi berhasil diunduh!', 'success');
+    },
   };
 
   window.EventOrganizer = OrganizerModule;

@@ -15,6 +15,24 @@
 
   var currentAdminTab = 'events'; // 'events' | 'refunds' | 'transactions'
 
+  function parseDateTime(str) {
+    if (!str) {
+      var d = new Date();
+      return {
+        date: String(d.getDate()).padStart(2, '0') + '/' + String(d.getMonth() + 1).padStart(2, '0') + '/' + d.getFullYear(),
+        time: String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0') + ' WIB'
+      };
+    }
+    var parts = String(str).trim().split(' ');
+    var datePart = parts[0] || '';
+    var timePart = parts.slice(1).join(' ') || '12:00 WIB';
+    if (datePart.indexOf('-') > 0) {
+      var p = datePart.split('-');
+      if (p.length === 3) datePart = p[2] + '/' + p[1] + '/' + p[0];
+    }
+    return { date: datePart, time: timePart };
+  }
+
   var AdminModule = {
     setAdminTab: function(tab) {
       if (Sound) Sound.playClick();
@@ -276,42 +294,87 @@
           '</div>'
         );
       } else if (currentAdminTab === 'transactions') {
+        var adminTotalGMV = 0;
+        var adminTotalComm = 0;
+        var adminTotalPayout = 0;
+
         html.push(
           '<div class="pos-table-card">',
-            '<table class="pos-table">',
-              '<thead>',
-                '<tr>',
-                  '<th>Kode Tiket</th>',
-                  '<th>Nama Acara</th>',
-                  '<th>Peserta</th>',
-                  '<th>Metode Bayar</th>',
-                  '<th style="text-align:right">Harga</th>',
-                  '<th>Status Masuk</th>',
-                '</tr>',
-              '</thead>',
-              '<tbody>'
+            '<div style="padding:18px 24px; border-bottom:1px solid rgba(255,255,255,0.08); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px">',
+              '<div>',
+                '<b style="font-size:1.1rem; color:#ffffff">Laporan Transaksi Penjualan Tiket Nasional</b><br>',
+                '<small style="color:#64748b">Rekapitulasi nomor urut, tanggal, jam, komisi platform 10%, dan hak bersih penyelenggara</small>',
+              '</div>',
+              '<button class="btn-secondary" style="padding:6px 14px; font-size:0.8rem" onclick="EventAdmin.exportTransactionsCSV()">📄 Ekspor CSV</button>',
+            '</div>',
+            '<div style="overflow-x:auto">',
+              '<table class="pos-table" id="admin-transactions-table">',
+                '<thead>',
+                  '<tr>',
+                    '<th style="text-align:center; width:45px">No.</th>',
+                    '<th>Tanggal</th>',
+                    '<th>Jam</th>',
+                    '<th>No. Tiket / Ref</th>',
+                    '<th>Nama Acara & Kategori</th>',
+                    '<th>Penyelenggara (EO)</th>',
+                    '<th>Peserta / Pembeli</th>',
+                    '<th style="text-align:right">Harga Bruto</th>',
+                    '<th style="text-align:right">Komisi (10%)</th>',
+                    '<th style="text-align:right">Payout EO (90%)</th>',
+                    '<th style="text-align:center">Status Masuk</th>',
+                  '</tr>',
+                '</thead>',
+                '<tbody>'
         );
 
         if (validTickets.length === 0) {
-          html.push('<tr><td colspan="6" style="text-align:center; padding:36px; color:#64748b">Belum ada transaksi tiket nasional yang tercatat. Seluruh data demo tiket telah dibersihkan.</td></tr>');
+          html.push('<tr><td colspan="11" style="text-align:center; padding:36px; color:#64748b">Belum ada transaksi tiket nasional yang tercatat.</td></tr>');
         } else {
-          validTickets.forEach(function(t) {
+          validTickets.forEach(function(t, idx) {
+            var no = idx + 1;
+            var dt = parseDateTime(t.createdAt);
+            var price = Number(t.price) || 0;
+            var comm = Math.round(price * 0.10);
+            var payout = price - comm;
+            adminTotalGMV += price;
+            adminTotalComm += comm;
+            adminTotalPayout += payout;
+
             html.push(
               '<tr>',
-                '<td><code>' + t.code + '</code></td>',
+                '<td style="text-align:center; color:#94a3b8; font-weight:700">' + no + '</td>',
+                '<td><span style="color:#ffffff; font-weight:600">' + dt.date + '</span></td>',
+                '<td><span style="color:#a5b4fc; font-family:var(--font-mono)">' + dt.time + '</span></td>',
+                '<td><code style="font-family:var(--font-mono); font-weight:700; color:#38bdf8">' + t.code + '</code></td>',
                 '<td><b>' + t.eventName + '</b><br><small style="color:#64748b">' + t.tierName + '</small></td>',
-                '<td>' + t.buyerName + '<br><small style="color:#64748b">' + t.buyerEmail + '</small></td>',
-                '<td>' + t.paymentMethod + '</td>',
-                '<td style="text-align:right"><b>' + formatRp(t.price) + '</b></td>',
-                '<td>' + (t.status === 'used' ? '<span style="color:#10b981; font-weight:700">✓ Sudah Masuk</span>' : '<span style="color:#64748b">○ Belum Check-in</span>') + '</td>',
+                '<td><span style="color:#e2e8f0; font-size:0.8rem">' + (t.organizerEmail || 'Promotor') + '</span></td>',
+                '<td><b>' + t.buyerName + '</b><br><small style="color:#64748b">' + t.buyerEmail + '</small></td>',
+                '<td style="text-align:right; font-weight:700; color:#ffffff">' + formatRp(price) + '</td>',
+                '<td style="text-align:right; color:#34d399; font-weight:600">+ ' + formatRp(comm) + '</td>',
+                '<td style="text-align:right; color:#38bdf8; font-weight:700">' + formatRp(payout) + '</td>',
+                '<td style="text-align:center">' + (t.status === 'used' ? '<span style="color:#10b981; font-weight:700">✓ Sudah Masuk</span>' : '<span style="color:#64748b">○ Belum Check-in</span>') + '</td>',
               '</tr>'
             );
           });
         }
 
         html.push(
-              '</tbody>',
-            '</table>',
+                '</tbody>',
+                '<tfoot>',
+                  '<tr style="background:rgba(99,102,241,0.12); font-weight:800; border-top:2px solid rgba(99,102,241,0.3)">',
+                    '<td colspan="7" style="padding:14px; text-align:right; color:#ffffff">TOTAL TRANSAKSI NASIONAL (Σ):</td>',
+                    '<td style="padding:14px; text-align:right; color:#38bdf8">' + formatRp(adminTotalGMV) + '</td>',
+                    '<td style="padding:14px; text-align:right; color:#34d399">+ ' + formatRp(adminTotalComm) + '</td>',
+                    '<td style="padding:14px; text-align:right; color:#38bdf8">' + formatRp(adminTotalPayout) + '</td>',
+                    '<td style="padding:14px; text-align:center; color:#a5b4fc">' + validTickets.length + ' Tiket</td>',
+                  '</tr>',
+                '</tfoot>',
+              '</table>',
+            '</div>',
+            '<div style="padding:12px 20px; background:rgba(0,0,0,0.25); border-top:1px solid rgba(255,255,255,0.06); font-size:0.75rem; color:#94a3b8; display:flex; justify-content:space-between; flex-wrap:wrap; gap:8px">',
+              '<span>📐 <b>Rumus Komisi Platform:</b> <code>Pendapatan Platform (10%) = Total GMV Bruto × 0.10</code></span>',
+              '<span><b>Rumus Payout Penyelenggara:</b> <code>Hak Bersih EO (90%) = Total GMV Bruto × 0.90</code></span>',
+            '</div>',
           '</div>'
         );
       } else if (currentAdminTab === 'users') {
@@ -821,6 +884,29 @@
       if (window.EventHub && window.EventHub.quickToggleMaintenance) {
         window.EventHub.quickToggleMaintenance(active);
       }
+    },
+    exportTransactionsCSV: function() {
+      var table = document.getElementById('admin-transactions-table');
+      if (!table) return;
+      var rows = table.querySelectorAll('tr');
+      var csv = [];
+      rows.forEach(function(row) {
+        var cols = row.querySelectorAll('th, td');
+        var rowData = [];
+        cols.forEach(function(col) {
+          var val = col.innerText.replace(/(\r\n|\n|\r)/gm, ' ').replace(/"/g, '""').trim();
+          rowData.push('"' + val + '"');
+        });
+        if (rowData.length) csv.push(rowData.join(','));
+      });
+      var blob = new Blob([csv.join('\n')], { type: 'text/csv;charset=utf-8;' });
+      var link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.setAttribute('download', 'Laporan_Transaksi_Nasional_EventHub_' + Date.now() + '.csv');
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      Router.showToast('Laporan CSV transaksi nasional berhasil diunduh!', 'success');
     },
   };
   window.EventAdmin = AdminModule;

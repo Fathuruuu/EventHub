@@ -451,6 +451,15 @@ def sync_database(payload):
         # 2. Sync Events & Tiers
         if 'events' in payload and isinstance(payload['events'], list):
             existing_ev_ids = [e.get('id') for e in payload['events'] if e.get('id')]
+            if existing_ev_ids:
+                placeholders = ','.join(['?'] * len(existing_ev_ids))
+                cursor.execute(f"DELETE FROM events WHERE id NOT IN ({placeholders})", existing_ev_ids)
+                cursor.execute(f"DELETE FROM vouchers WHERE event_id IS NOT NULL AND event_id NOT IN ({placeholders})", existing_ev_ids)
+                cursor.execute(f"DELETE FROM messages WHERE event_id IS NOT NULL AND event_id NOT IN ({placeholders})", existing_ev_ids)
+            else:
+                cursor.execute("DELETE FROM events")
+                cursor.execute("DELETE FROM vouchers WHERE event_id IS NOT NULL")
+                cursor.execute("DELETE FROM messages WHERE event_id IS NOT NULL")
             for e in payload['events']:
                 ev_id = e.get('id')
                 gallery_json = json.dumps(e.get('galleryImages', []))

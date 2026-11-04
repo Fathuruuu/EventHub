@@ -78,6 +78,7 @@
               '</button>',
               '<button class="pos-nav-item ' + (currentAdminTab === 'users' ? 'active' : '') + '" onclick="EventAdmin.setAdminTab(\'users\')">',
                 '<span>👥</span> Manajemen Akun (' + allUsers.length + ')',
+                (Store.getPendingOrganizers().length ? '<span class="pos-nav-badge" style="background:#f59e0b">' + Store.getPendingOrganizers().length + '</span>' : ''),
               '</button>',
               '<button class="pos-nav-item ' + (currentAdminTab === 'moneyflow' ? 'active' : '') + '" onclick="EventAdmin.setAdminTab(\'moneyflow\')">',
                 '<span>📈</span> MoneyFlow Finansial',
@@ -187,7 +188,6 @@
                 '<div style="font-size:0.72rem; color:#64748b">Dari Total GMV ' + formatRp(totalGMV) + '</div>',
               '</div>',
             '</div>',
-            (window.EventAdminApproval ? window.EventAdminApproval.renderApprovalSection() : ''),
             // 2-Column Layout
             '<div class="pos-grid-layout">',
               // Left Column
@@ -199,7 +199,7 @@
                   '<button class="pos-tab-btn ' + (currentAdminTab === 'feedback' ? 'active' : '') + '" onclick="EventAdmin.setAdminTab(\'feedback\')">⭐ Feedback Web (' + Store.getWebsiteFeedbacksForAdmin(user).length + ')</button>',
                   '<button class="pos-tab-btn ' + (currentAdminTab === 'messages' ? 'active' : '') + '" onclick="EventAdmin.setAdminTab(\'messages\')">💬 Pengawasan Pesan (' + Store.getAllMessagesForAdmin(user).length + ')</button>',
                   '<button class="pos-tab-btn ' + (currentAdminTab === 'refunds' ? 'active' : '') + '" onclick="EventAdmin.setAdminTab(\'refunds\')">Audit Refund (' + allRefunds.length + ')</button>',
-                  '<button class="pos-tab-btn ' + (currentAdminTab === 'users' ? 'active' : '') + '" onclick="EventAdmin.setAdminTab(\'users\')">Kelola Akun (' + allUsers.length + ')</button>',
+                  '<button class="pos-tab-btn ' + (currentAdminTab === 'users' ? 'active' : '') + '" onclick="EventAdmin.setAdminTab(\'users\')">Kelola Akun (' + allUsers.length + ')' + (Store.getPendingOrganizers().length ? ' <span style="background:#f59e0b; color:white; padding:1px 6px; border-radius:99px; font-size:0.7rem">' + Store.getPendingOrganizers().length + '</span>' : '') + '</button>',
                 '</div>'
       ];
 
@@ -238,7 +238,10 @@
                 '<td style="text-align:center"><b>' + evTix.length + '</b> / ' + totalQ + '</td>',
                 '<td style="text-align:right; font-weight:700; color:#38bdf8">' + formatRp(evRevenue) + '</td>',
                 '<td style="text-align:center">',
-                  '<button class="btn-secondary" style="padding:4px 8px; font-size:0.75rem" onclick="EventHub.openEditEventModal(\'' + e.id + '\')">✏️ Edit</button>',
+                  '<div style="display:inline-flex; gap:6px; align-items:center">',
+                    '<button class="btn-secondary" style="padding:4px 8px; font-size:0.75rem" onclick="EventHub.openEditEventModal(\'' + e.id + '\')">✏️ Edit</button>',
+                    '<button class="btn-danger" style="padding:4px 8px; font-size:0.75rem; display:inline-flex; align-items:center; gap:4px" onclick="EventHub.confirmDeleteEvent(\'' + e.id + '\')">🗑️ Hapus</button>',
+                  '</div>',
                 '</td>',
               '</tr>'
             );
@@ -378,6 +381,10 @@
           '</div>'
         );
       } else if (currentAdminTab === 'users') {
+        if (window.EventAdminApproval) {
+          var approvalHtml = window.EventAdminApproval.renderApprovalSection();
+          if (approvalHtml) html.push(approvalHtml);
+        }
         var publicUsers = allUsers.filter(function(u){ return u.role !== 'superadmin'; });
         html.push(
           '<div style="background:rgba(15,23,42,0.7); border:1px solid rgba(99,102,241,0.3); border-radius:var(--radius-lg); padding:16px 20px; margin-bottom:20px; display:flex; align-items:center; gap:16px">',

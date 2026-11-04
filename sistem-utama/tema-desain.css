@@ -1210,3 +1210,115 @@ main#app-root {
   text-transform: uppercase;
 }
 
+
+/* Drag and Drop Media Dropzone */
+.media-dropzone {
+  position: relative;
+  border: 2px dashed rgba(99, 102, 241, 0.4);
+  border-radius: 14px;
+  background: rgba(15, 23, 42, 0.5);
+  padding: 22px 18px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.22s ease-in-out;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+.media-dropzone:hover {
+  border-color: #818cf8;
+  background: rgba(99, 102, 241, 0.08);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px -4px rgba(99, 102, 241, 0.25);
+}
+.media-dropzone.dragover {
+  border-color: #a855f7 !important;
+  background: rgba(168, 85, 247, 0.16) !important;
+  box-shadow: 0 0 25px rgba(168, 85, 247, 0.45) !important;
+  transform: scale(1.02);
+}
+.media-dropzone-icon {
+  width: 46px;
+  height: 46px;
+  border-radius: 12px;
+  background: rgba(99, 102, 241, 0.12);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  transition: transform 0.2s ease;
+}
+.media-dropzone:hover .media-dropzone-icon {
+  transform: scale(1.1);
+}
+.media-dropzone-title {
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: #f8fafc;
+}
+.media-dropzone-sub {
+  font-size: 0.76rem;
+  color: #94a3b8;
+}
+.media-dropzone-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.08);
+  color: #e2e8f0;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  pointer-events: none;
+}
+.media-preview-container {
+  margin-top: 10px;
+  position: relative;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid var(--border-glass);
+  background: rgba(0, 0, 0, 0.35);
+}
+.media-preview-badge {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: rgba(15, 23, 42, 0.88);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #10b981;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  z-index: 2;
+}
+.media-remove-btn {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  background: rgba(244, 63, 94, 0.88);
+  backdrop-filter: blur(8px);
+  color: white;
+  border: none;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  z-index: 2;
+  transition: background 0.2s;
+}
+.media-remove-btn:hover {
+  background: #f43f5e;
+}

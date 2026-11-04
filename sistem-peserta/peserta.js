@@ -179,15 +179,19 @@
           var totalSold = ev.tiers.reduce(function(a, t){ return a + t.sold; }, 0);
           var pctSold = Math.min(100, Math.round((totalSold / Math.max(totalQuota, 1)) * 100));
           var isBookmarked = Store.isBookmarked(ev.id);
+          var canManageEv = Store.canManageEvent(user, ev.id);
 
           html.push(
             '<div class="event-card" onclick="EventHub.go(\'detail\', \'' + ev.id + '\')">',
               '<div class="event-banner-box" style="background:' + ev.gradient + '">',
                 '<div class="event-badge-top">',
                   '<span class="category-tag">' + ev.category + '</span>',
-                  '<button class="btn-bookmark ' + (isBookmarked ? 'active' : '') + '" onclick="event.stopPropagation(); EventHub.toggleBookmark(\'' + ev.id + '\')">',
-                    '♥',
-                  '</button>',
+                  '<div style="display:flex; gap:6px; align-items:center">',
+                    (canManageEv ? '<button type="button" class="btn-danger" style="padding:4px 8px; font-size:0.75rem; border-radius:8px; z-index:3; background:rgba(244,63,94,0.9); border:none; color:white" title="Hapus Acara" onclick="event.stopPropagation(); EventHub.confirmDeleteEvent(\'' + ev.id + '\')">🗑️</button>' : ''),
+                    '<button class="btn-bookmark ' + (isBookmarked ? 'active' : '') + '" onclick="event.stopPropagation(); EventHub.toggleBookmark(\'' + ev.id + '\')">',
+                      '♥',
+                    '</button>',
+                  '</div>',
                 '</div>',
                 '<div class="event-date-pill">',
                   ev.date, '<br><span>' + ev.time + '</span>',
@@ -254,13 +258,28 @@
       var serviceFee = Math.round(subtotal * 0.05);
       var totalAmount = subtotal + serviceFee;
       var remainingQuota = Math.max(0, selectedTier.quota - selectedTier.sold);
+      var user = Store.getCurrentUser();
+      var canManage = Store.canManageEvent(user, ev.id);
 
       var html = [
         '<div class="view-animated">',
-          '<div style="margin-bottom:18px">',
+          '<div style="margin-bottom:18px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px">',
             '<button class="btn-secondary" style="padding:6px 14px; font-size:0.85rem" onclick="EventHub.go(\'home\')">',
               '← Kembali ke Jelajahi Event',
             '</button>',
+            (canManage ? [
+              '<div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap">',
+                '<span style="background:rgba(99,102,241,0.15); border:1px solid rgba(99,102,241,0.3); color:#c7d2fe; padding:5px 12px; border-radius:8px; font-size:0.75rem; font-weight:700">',
+                  (user && user.role === 'superadmin' ? '🛡️ Administrator Mode' : '🏢 Penyelenggara Event'),
+                '</span>',
+                '<button type="button" class="btn-secondary" style="padding:6px 14px; font-size:0.82rem; display:inline-flex; align-items:center; gap:6px" onclick="EventHub.openEditEventModal(\'' + ev.id + '\')">',
+                  '<span>⚙️</span> Edit Acara',
+                '</button>',
+                '<button type="button" class="btn-danger" style="padding:6px 16px; font-size:0.82rem; font-weight:700; display:inline-flex; align-items:center; gap:6px; background:#f43f5e; color:#ffffff; border:none; box-shadow:0 4px 14px rgba(244,63,94,0.35); cursor:pointer" onclick="EventHub.confirmDeleteEvent(\'' + ev.id + '\')">',
+                  '<span>🗑️</span> Hapus Acara Ini',
+                '</button>',
+              '</div>'
+            ].join('') : ''),
           '</div>',
 
           '<div class="detail-layout">',
@@ -269,10 +288,9 @@
                 '<div style="display:flex; justify-content:space-between; align-items:center">',
                   '<span class="category-tag">' + ev.category + '</span>',
                   '<div class="countdown-box">',
-                    '⭐ ' + ev.rating + ' (' + ev.reviewsCount + ' Ulasan)',
+                    '⭐ ' + (ev.rating || '5.0') + ' (' + (ev.reviewsCount || 0) + ' Ulasan)',
                   '</div>',
                 '</div>',
-                '<div>',
                   '<h1 style="font-size:clamp(1.8rem, 3vw, 2.5rem); font-weight:800; color:white; line-height:1.2; text-shadow:0 2px 8px rgba(0,0,0,0.5)">' + ev.title + '</h1>',
                   '<p style="color:rgba(255,255,255,0.85); font-size:0.95rem; margin-top:6px">Diselenggarakan oleh <b>' + ev.organizerName + '</b></p>',
                 '</div>',

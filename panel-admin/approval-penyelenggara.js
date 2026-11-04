@@ -16,30 +16,25 @@
       if (!user || user.role !== 'superadmin') return '';
 
       var pending = Store.getPendingOrganizers();
+      // Hanya muncul saat ada akun penyelenggara yang mendaftar dan menunggu approval
+      if (!pending || pending.length === 0) return '';
 
       var html = [
-        '<div class="pos-table-card" style="margin-bottom:24px">',
+        '<div class="pos-table-card" style="margin-bottom:24px; border:1px solid rgba(245,158,11,0.3); background:rgba(245,158,11,0.03)">',
           '<div style="padding:16px 20px; border-bottom:1px solid rgba(255,255,255,0.08); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px">',
             '<div>',
               '<b style="font-size:1.05rem; color:#f59e0b">⏳ Permohonan Pendaftaran Akun Penyelenggara (Menunggu Persetujuan Admin)</b><br>',
-              '<small style="color:#64748b">Penyelenggara baru yang mendaftar harus disetujui admin terlebih dahulu sebelum dapat login dan membuat event.</small>',
+              '<small style="color:#94a3b8">Penyelenggara baru yang mendaftar harus disetujui admin terlebih dahulu sebelum dapat login dan membuat event.</small>',
             '</div>',
-            '<span style="background:rgba(245,158,11,0.15); color:#fbbf24; font-weight:800; font-size:0.8rem; padding:4px 12px; border-radius:99px">',
+            '<span style="background:rgba(245,158,11,0.15); color:#fbbf24; font-weight:800; font-size:0.8rem; padding:4px 12px; border-radius:99px; border:1px solid rgba(245,158,11,0.3)">',
               pending.length + ' Menunggu Approval',
             '</span>',
           '</div>'
       ];
 
-      if (pending.length === 0) {
-        html.push(
-          '<div style="text-align:center; padding:36px; color:#64748b; font-size:0.9rem">',
-            '✓ Tidak ada permohonan pendaftaran penyelenggara yang tertunda. Semua akun telah ditinjau.',
-          '</div>'
-        );
-      } else {
-        html.push(
-          '<table class="pos-table">',
-            '<thead>',
+      html.push(
+        '<table class="pos-table">',
+          '<thead>',
               '<tr>',
                 '<th>Tanggal Daftar</th>',
                 '<th>Nama Penanggung Jawab</th>',
@@ -73,7 +68,6 @@
         });
 
         html.push('</tbody></table>');
-      }
 
       html.push('</div>');
       return html.join('');

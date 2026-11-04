@@ -105,10 +105,10 @@
   }
 
   var syncDebounceTimer = null;
-  function syncWithBackend(data) {
+  function syncWithBackend(data, immediateSync) {
     if (typeof fetch === 'undefined') return;
     clearTimeout(syncDebounceTimer);
-    syncDebounceTimer = setTimeout(function() {
+    var doSync = function() {
       try {
         fetch('/api/db/sync', {
           method: 'POST',
@@ -116,16 +116,21 @@
           body: JSON.stringify(data)
         }).catch(function() {});
       } catch (e) {}
-    }, 300);
+    };
+    if (immediateSync) {
+      doSync();
+    } else {
+      syncDebounceTimer = setTimeout(doSync, 300);
+    }
   }
 
-  function saveData(data) {
+  function saveData(data, immediateSync) {
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
     } catch (e) {
       console.error('LocalStorage write error:', e);
     }
-    syncWithBackend(data);
+    syncWithBackend(data, immediateSync);
   }
 
   async function hydrateFromBackend() {
@@ -431,8 +436,8 @@
     },
 
     createEvent: function(eventPayload, organizerUser) {
-      if (!organizerUser || organizerUser.role !== 'penyelenggara') {
-        throw new Error('Hanya akun penyelenggara yang dapat membuat event.');
+      if (!organizerUser || (organizerUser.role !== 'penyelenggara' && organizerUser.role !== 'superadmin')) {
+        throw new Error('Hanya akun penyelenggara atau administrator yang dapat membuat event.');
       }
 
       var id = 'EVT-' + Math.random().toString(36).substring(2, 6).toUpperCase();
@@ -484,16 +489,30 @@
       return ev;
     },
 
-    deleteEvent: function(eventId, user) {
+    deleteEvent: function(eventId, user, force) {
       if (!this.canManageEvent(user, eventId)) {
         throw new Error('Akses ditolak: Anda hanya dapat menghapus event milik Anda sendiri.');
       }
       var hasSold = DB.tickets.some(function(t) { return t.eventId === eventId && t.status !== 'refunded'; });
-      if (hasSold) {
-        throw new Error('Event tidak dapat dihapus karena sudah memiliki tiket terjual.');
+      if (hasSold && !force) {
+        throw new Error('Event sudah memiliki tiket terjual. Konfirmasi penghapusan diperlukan.');
       }
-      DB.events = DB.events.filter(function(e) { return e.id !== eventId; });
-      saveData(DB);
+      // Cascade delete related records
+      DB.tickets = (DB.tickets || []).filter(function(t) { return t.eventId !== eventId; });
+      DB.refundRequests = (DB.refundRequests || []).filter(function(r) { return r.eventId !== eventId; });
+      DB.vouchers = (DB.vouchers || []).filter(function(v) { return v.eventId !== eventId; });
+      DB.messages = (DB.messages || []).filter(function(m) { return m.eventId !== eventId; });
+      DB.events = (DB.events || []).filter(function(e) { return e.id !== eventId; });
+
+      try {
+        fetch('/api/events/delete', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ id: eventId })
+        }).catch(function() {});
+      } catch (e) {}
+
+      saveData(DB, true);
       return true;
     },
 

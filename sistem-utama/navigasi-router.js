@@ -160,6 +160,10 @@
       }
     }
 
+    if (window.EventScannerService && window.EventScannerService.isRunning()) {
+      window.EventScannerService.stopCamera();
+    }
+
     App.currentRoute = route;
     App.routeParam = param || null;
 

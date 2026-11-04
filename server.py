@@ -10,6 +10,7 @@ import json
 import os
 import smtplib
 import re
+import time
 from datetime import datetime
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
@@ -383,6 +384,28 @@ class EventHubRequestHandler(http.server.SimpleHTTPRequestHandler):
                 self.send_header('Content-Type', 'application/json')
                 self.end_headers()
                 self.wfile.write(json.dumps(seed_res).encode('utf-8'))
+            except Exception as e:
+                self.send_response(500)
+                self.send_header('Content-Type', 'application/json')
+                self.end_headers()
+                self.wfile.write(json.dumps({"success": False, "error": str(e)}).encode('utf-8'))
+            return
+        if self.path == '/api/events/delete':
+            try:
+                del_payload = json.loads(post_data.decode('utf-8'))
+                ev_id_to_del = del_payload.get('id')
+                if ev_id_to_del:
+                    conn = database.get_connection()
+                    cur = conn.cursor()
+                    cur.execute("DELETE FROM events WHERE id = ?", (ev_id_to_del,))
+                    cur.execute("DELETE FROM vouchers WHERE event_id = ?", (ev_id_to_del,))
+                    cur.execute("DELETE FROM messages WHERE event_id = ?", (ev_id_to_del,))
+                    conn.commit()
+                    conn.close()
+                self.send_response(200)
+                self.send_header('Content-Type', 'application/json')
+                self.end_headers()
+                self.wfile.write(json.dumps({"success": True}).encode('utf-8'))
             except Exception as e:
                 self.send_response(500)
                 self.send_header('Content-Type', 'application/json')

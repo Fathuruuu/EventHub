@@ -4,8 +4,6 @@
  * dan mengunci pemindaian agar notifikasi hasil scan HANYA muncul 1 KALI (tidak berulang-ulang).
  */
 (function(window) {
-  'use strict';
-
   var activeStream = null;
   var scanLoopId = null;
   var offscreenCanvas = null;
@@ -14,16 +12,16 @@
   var isScanning = false;
   var isPaused = false;
   var autoResumeTimeout = null;
+  var currentVideoElement = null;
 
   var ScannerService = {
     isRunning: function() {
-      return !!(activeStream && activeStream.active);
+      return !!(activeStream && activeStream.active && activeStream.getVideoTracks().some(function(t) { return t.readyState === 'live'; }));
     },
 
     isPaused: function() {
       return isPaused;
     },
-
     /**
      * Mengunci scanner sementara saat QR terdeteksi agar tidak spam notifikasi
      */
@@ -57,6 +55,16 @@
     startCamera: async function(videoElement, onScanCallback, onErrorCallback, preferredDeviceId) {
       this.stopCamera();
 
+      // Resolve video element if passed as ID string or selector
+      if (typeof videoElement === 'string') {
+        videoElement = document.getElementById(videoElement.replace(/^#/, '')) || document.querySelector(videoElement);
+      }
+      if (!videoElement) {
+        if (onErrorCallback) onErrorCallback('Elemen video kamera tidak ditemukan.');
+        return false;
+      }
+      currentVideoElement = videoElement;
+
       if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
         if (onErrorCallback) onErrorCallback('Browser ini tidak mendukung akses kamera (WebRTC).');
         return false;
@@ -74,7 +82,18 @@
         activeStream = stream;
         videoElement.srcObject = stream;
         videoElement.setAttribute('playsinline', 'true');
-        await videoElement.play();
+        videoElement.setAttribute('webkit-playsinline', 'true');
+        videoElement.setAttribute('autoplay', 'true');
+        videoElement.muted = true;
+        videoElement.style.display = 'block';
+        try {
+          var p = videoElement.play();
+          if (p && typeof p.catch === 'function') {
+            p.catch(function(playErr) { console.warn('Autoplay warning:', playErr); });
+          }
+        } catch (playErr) {
+          console.warn('Autoplay warning:', playErr);
+        }
 
         isScanning = true;
         isPaused = false;
@@ -88,7 +107,18 @@
           activeStream = fallbackStream;
           videoElement.srcObject = fallbackStream;
           videoElement.setAttribute('playsinline', 'true');
-          await videoElement.play();
+          videoElement.setAttribute('webkit-playsinline', 'true');
+          videoElement.setAttribute('autoplay', 'true');
+          videoElement.muted = true;
+          videoElement.style.display = 'block';
+          try {
+            var fallbackP = videoElement.play();
+            if (fallbackP && typeof fallbackP.catch === 'function') {
+              fallbackP.catch(function(playErr) { console.warn('Fallback autoplay warning:', playErr); });
+            }
+          } catch (playErr) {
+            console.warn('Fallback autoplay warning:', playErr);
+          }
 
           isScanning = true;
           isPaused = false;
@@ -114,13 +144,35 @@
       }
       if (activeStream) {
         activeStream.getTracks().forEach(function(track) {
-          try { track.stop(); } catch (e) {}
+          try {
+            track.stop();
+            track.enabled = false;
+          } catch (e) {}
         });
         activeStream = null;
       }
-      if (videoElement) {
-        videoElement.srcObject = null;
+      if (typeof videoElement === 'string') {
+        videoElement = document.getElementById(videoElement.replace(/^#/, '')) || document.querySelector(videoElement);
       }
+      var targetEl = videoElement || currentVideoElement;
+      if (targetEl) {
+        try {
+          targetEl.pause();
+          targetEl.srcObject = null;
+        } catch (e) {}
+      }
+      currentVideoElement = null;
+
+      // Pastikan seluruh elemen video scanner yang ada dibersihkan dan dihentikan
+      ['quick-scanner-video', 'organizer-video', 'admin-video'].forEach(function(id) {
+        var el = document.getElementById(id);
+        if (el && el.srcObject) {
+          try {
+            el.pause();
+            el.srcObject = null;
+          } catch (e) {}
+        }
+      });
     },
 
     runScanLoop: function(videoElement, onScanCallback) {

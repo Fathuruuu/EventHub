@@ -21,13 +21,20 @@
       backdrop.id = 'modal-container';
       document.body.appendChild(backdrop);
     }
+    backdrop.onclick = function(e) {
+      if (e.target === backdrop) {
+        EventHub.closeModal();
+      }
+    };
 
     if (!App.activeModal) {
+      if (window.EventScannerService) {
+        window.EventScannerService.stopCamera();
+      }
       backdrop.className = 'modal-backdrop';
       backdrop.innerHTML = '';
       return;
     }
-
     backdrop.className = 'modal-backdrop open';
     var html = ['<div class="modal-sheet">'];
 
@@ -241,47 +248,66 @@
         '</div>',
 
         '<div class="form-group">',
-          '<label class="form-label">Banner Utama Acara</label>',
+          '<label class="form-label" style="display:flex; justify-content:space-between; align-items:center">',
+            '<span>Banner Utama Acara</span>',
+            '<small style="color:#818cf8; font-weight:600">Drag & Drop / Klik File</small>',
+          '</label>',
           '<input type="hidden" id="ev-banner" value="' + (evData && evData.bannerImg ? evData.bannerImg : '') + '">',
           '<input type="file" id="ev-banner-file" accept="image/*" style="display:none" onchange="EventHub.handleMediaUpload(this, \'ev-banner\', \'ev-banner-preview\')">',
-          '<div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap">',
-            '<button type="button" class="btn-primary" style="width:auto; padding:8px 16px; font-size:0.82rem; background:#6366f1" onclick="document.getElementById(\'ev-banner-file\').click()">',
-              '🖼️ Pilih Foto Banner dari Komputer',
-            '</button>',
-            '<button type="button" class="btn-secondary" style="padding:8px 12px; font-size:0.75rem" onclick="EventHub.setPresetMedia(\'ev-banner\', \'ev-banner-preview\', \'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=800\')">🎸 Template Musik</button>',
-            '<button type="button" class="btn-secondary" style="padding:8px 12px; font-size:0.75rem" onclick="EventHub.setPresetMedia(\'ev-banner\', \'ev-banner-preview\', \'https://images.unsplash.com/photo-1542751371-adc38448a05e?w=800\')">🎮 Template Game</button>',
+          '<div class="media-dropzone" id="ev-banner-dropzone" onclick="document.getElementById(\'ev-banner-file\').click()" ondragover="EventHub.handleDragOver(event, this)" ondragleave="EventHub.handleDragLeave(event, this)" ondrop="EventHub.handleDropMedia(event, \'ev-banner\', \'ev-banner-preview\', false, this)">',
+            '<div class="media-dropzone-icon">🖼️</div>',
+            '<div class="media-dropzone-title">Tarik & Lepas Foto Banner ke Sini</div>',
+            '<div class="media-dropzone-sub">atau klik langsung untuk memilih foto banner (JPG, PNG, WebP)</div>',
+            '<div class="media-dropzone-btn">📁 Pilih File Foto</div>',
           '</div>',
-          '<div id="ev-banner-preview" style="margin-top:10px">' +
-            (evData && evData.bannerImg ? '<img src="' + evData.bannerImg + '" style="height:90px; border-radius:10px; border:1px solid var(--border-glass)">' : '<small style="color:#64748b">Belum ada foto banner yang dipilih.</small>') +
+          '<div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap; margin-top:8px">',
+            '<span style="font-size:0.75rem; color:#64748b">Preset Cepat:</span>',
+            '<button type="button" class="btn-secondary" style="padding:4px 10px; font-size:0.74rem" onclick="EventHub.setPresetMedia(\'ev-banner\', \'ev-banner-preview\', \'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=800\')">🎸 Template Musik</button>',
+            '<button type="button" class="btn-secondary" style="padding:4px 10px; font-size:0.74rem" onclick="EventHub.setPresetMedia(\'ev-banner\', \'ev-banner-preview\', \'https://images.unsplash.com/photo-1542751371-adc38448a05e?w=800\')">🎮 Template Game</button>',
+            '<button type="button" class="btn-secondary" style="padding:4px 10px; font-size:0.74rem" onclick="EventHub.setPresetMedia(\'ev-banner\', \'ev-banner-preview\', \'https://images.unsplash.com/photo-1505373877841-8d25f7d46678?w=800\')">💻 Template Tech</button>',
+          '</div>',
+          '<div id="ev-banner-preview">' +
+            (evData && evData.bannerImg ? EventHub.renderBannerPreviewHtml(evData.bannerImg) : '<small style="color:#64748b; display:block; margin-top:6px">Belum ada foto banner yang dipilih.</small>') +
           '</div>',
         '</div>',
 
         '<div class="form-group">',
-          '<label class="form-label">Video Trailer / Teaser Acara</label>',
+          '<label class="form-label" style="display:flex; justify-content:space-between; align-items:center">',
+            '<span>Video Trailer / Teaser Acara</span>',
+            '<small style="color:#c084fc; font-weight:600">Drag & Drop / Klik File</small>',
+          '</label>',
           '<input type="hidden" id="ev-trailer" value="' + (evData && evData.videoTrailer ? evData.videoTrailer : '') + '">',
           '<input type="file" id="ev-trailer-file" accept="video/mp4,video/webm" style="display:none" onchange="EventHub.handleMediaUpload(this, \'ev-trailer\', \'ev-trailer-preview\', true)">',
-          '<div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap">',
-            '<button type="button" class="btn-primary" style="width:auto; padding:8px 16px; font-size:0.82rem; background:#8b5cf6" onclick="document.getElementById(\'ev-trailer-file\').click()">',
-              '🎬 Pilih Video Trailer dari Komputer',
-            '</button>',
-            '<button type="button" class="btn-secondary" style="padding:8px 12px; font-size:0.75rem" onclick="EventHub.setPresetMedia(\'ev-trailer\', \'ev-trailer-preview\', \'https://assets.mixkit.co/videos/preview/mixkit-audience-at-a-music-concert-holding-lights-42537-large.mp4\', true)">🎸 Template Teaser</button>',
+          '<div class="media-dropzone" id="ev-trailer-dropzone" onclick="document.getElementById(\'ev-trailer-file\').click()" ondragover="EventHub.handleDragOver(event, this)" ondragleave="EventHub.handleDragLeave(event, this)" ondrop="EventHub.handleDropMedia(event, \'ev-trailer\', \'ev-trailer-preview\', true, this)">',
+            '<div class="media-dropzone-icon" style="color:#a855f7; background:rgba(168,85,247,0.12)">🎬</div>',
+            '<div class="media-dropzone-title">Tarik & Lepas Video Trailer ke Sini</div>',
+            '<div class="media-dropzone-sub">atau klik langsung untuk memilih file video (MP4, WebM maks 25MB)</div>',
+            '<div class="media-dropzone-btn">📁 Pilih File Video</div>',
           '</div>',
-          '<div id="ev-trailer-preview" style="margin-top:10px">' +
-            (evData && evData.videoTrailer ? '<video src="' + evData.videoTrailer + '" controls style="height:110px; border-radius:10px; border:1px solid var(--border-glass)"></video>' : '<small style="color:#64748b">Belum ada video trailer yang dipilih.</small>') +
+          '<div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap; margin-top:8px">',
+            '<span style="font-size:0.75rem; color:#64748b">Preset Cepat:</span>',
+            '<button type="button" class="btn-secondary" style="padding:4px 10px; font-size:0.74rem" onclick="EventHub.setPresetMedia(\'ev-trailer\', \'ev-trailer-preview\', \'https://assets.mixkit.co/videos/preview/mixkit-audience-at-a-music-concert-holding-lights-42537-large.mp4\', true)">🎸 Template Teaser Musik</button>',
+          '</div>',
+          '<div id="ev-trailer-preview">' +
+            (evData && evData.videoTrailer ? EventHub.renderTrailerPreviewHtml(evData.videoTrailer) : '<small style="color:#64748b; display:block; margin-top:6px">Belum ada video trailer yang dipilih.</small>') +
           '</div>',
         '</div>',
 
         '<div class="form-group">',
-          '<label class="form-label">Foto-foto Galeri Acara</label>',
+          '<label class="form-label" style="display:flex; justify-content:space-between; align-items:center">',
+            '<span>Foto-foto Galeri Acara</span>',
+            '<small style="color:#22d3ee; font-weight:600">Bisa Banyak Sekaligus</small>',
+          '</label>',
           '<input type="hidden" id="ev-gallery" value="' + (evData && evData.galleryImages ? evData.galleryImages.join(',') : '') + '">',
           '<input type="file" id="ev-gallery-files" accept="image/*" multiple style="display:none" onchange="EventHub.handleGalleryUpload(this)">',
-          '<div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap">',
-            '<button type="button" class="btn-secondary" style="width:auto; padding:8px 16px; font-size:0.82rem" onclick="document.getElementById(\'ev-gallery-files\').click()">',
-              '📸 Unggah Foto-foto Galeri dari Komputer (Bisa Banyak)',
-            '</button>',
+          '<div class="media-dropzone" id="ev-gallery-dropzone" onclick="document.getElementById(\'ev-gallery-files\').click()" ondragover="EventHub.handleDragOver(event, this)" ondragleave="EventHub.handleDragLeave(event, this)" ondrop="EventHub.handleDropGallery(event, this)">',
+            '<div class="media-dropzone-icon" style="color:#06b6d4; background:rgba(6,182,212,0.12)">📸</div>',
+            '<div class="media-dropzone-title">Tarik & Lepas Banyak Foto Galeri ke Sini</div>',
+            '<div class="media-dropzone-sub">atau klik langsung untuk memilih beberapa foto sekaligus dari komputer</div>',
+            '<div class="media-dropzone-btn">📁 Unggah Foto Galeri</div>',
           '</div>',
-          '<div id="ev-gallery-preview" style="display:flex; gap:8px; flex-wrap:wrap; margin-top:10px">' +
-            (evData && evData.galleryImages && evData.galleryImages.length ? evData.galleryImages.map(function(img){ return '<img src="' + img + '" style="height:60px; width:80px; object-fit:cover; border-radius:8px; border:1px solid var(--border-glass)">'; }).join('') : '<small style="color:#64748b">Belum ada foto galeri.</small>') +
+          '<div id="ev-gallery-preview">' +
+            (evData && evData.galleryImages && evData.galleryImages.length ? EventHub.renderGalleryPreviewHtml(evData.galleryImages) : '<small style="color:#64748b; display:block; margin-top:6px">Belum ada foto galeri.</small>') +
           '</div>',
         '</div>'
       );
@@ -301,10 +327,51 @@
         );
       }
 
+      if (isEditEv) {
+        html.push(
+          '<div style="display:flex; justify-content:space-between; align-items:center; margin-top:24px; gap:12px; flex-wrap:wrap; border-top:1px solid var(--border-glass); padding-top:16px">',
+            '<button type="button" class="btn-danger" style="padding:10px 18px; font-size:0.85rem; border-radius:10px; display:inline-flex; align-items:center; gap:8px" onclick="EventHub.confirmDeleteEvent(\'' + evData.id + '\')">',
+              '<span>🗑️</span> Hapus Acara Ini',
+            '</button>',
+            '<div style="display:flex; gap:10px">',
+              '<button type="button" class="btn-secondary" onclick="EventHub.closeModal()">Batal</button>',
+              '<button type="button" class="btn-primary" onclick="EventHub.saveEventForm(\'' + evData.id + '\')">Simpan Perubahan Acara</button>',
+            '</div>',
+          '</div>'
+        );
+      } else {
+        html.push(
+          '<div style="display:flex; justify-content:flex-end; gap:10px; margin-top:20px; border-top:1px solid var(--border-glass); padding-top:16px">',
+            '<button type="button" class="btn-secondary" onclick="EventHub.closeModal()">Batal</button>',
+            '<button type="button" class="btn-primary" onclick="EventHub.saveEventForm()">Terbitkan Acara Sekarang</button>',
+          '</div>'
+        );
+      }
+    } else if (App.activeModal === 'deleteEventConfirm') {
+      var evToDelete = Store.getEventById(App.modalData);
+      var evTitle = evToDelete ? evToDelete.title : 'Acara Ini';
+      var evId = evToDelete ? evToDelete.id : App.modalData;
+      var tixCount = Store.getTickets().filter(function(t){ return t.eventId === evId; }).length;
       html.push(
-        '<button class="btn-primary" style="margin-top:16px" onclick="EventHub.saveEventForm(\'' + (evData ? evData.id : '') + '\')">',
-          isEditEv ? 'Simpan Perubahan Acara' : 'Terbitkan Acara Sekarang',
-        '</button>'
+        '<div class="modal-header">',
+          '<h3 class="modal-title" style="color:#fb7185; display:flex; align-items:center; gap:8px">⚠️ Konfirmasi Hapus Acara</h3>',
+          '<button class="modal-close-btn" onclick="EventHub.closeModal()">✕</button>',
+        '</div>',
+        '<div style="padding:16px 0; text-align:center">',
+          '<div style="font-size:3.5rem; margin-bottom:12px">🗑️</div>',
+          '<h3 style="font-size:1.3rem; font-weight:800; color:#ffffff; margin-bottom:8px">Hapus Acara "' + evTitle + '"?</h3>',
+          '<p style="font-size:0.88rem; color:#94a3b8; line-height:1.6; max-width:440px; margin:0 auto 16px">',
+            'Apakah Anda yakin ingin menghapus acara ini secara permanen dari sistem? ',
+            (tixCount ? '<br><b style="color:#fb7185">Perhatian: Ada ' + tixCount + ' tiket terkait yang juga akan ikut dibatalkan & dihapus.</b>' : ''),
+          '</p>',
+          '<div style="background:rgba(244,63,94,0.1); border:1px solid rgba(244,63,94,0.3); border-radius:10px; padding:12px; font-size:0.8rem; color:#fca5a5; max-width:440px; margin:0 auto 20px; text-align:left">',
+            '⚠️ <b>Tindakan ini permanen dan tidak dapat dibatalkan.</b> Seluruh data tiket, kuota kategori, dan riwayat yang terkait dengan acara ini akan dihapus permanen.',
+          '</div>',
+          '<div style="display:flex; justify-content:center; gap:12px; flex-wrap:wrap">',
+            '<button type="button" class="btn-secondary" style="padding:10px 22px" onclick="EventHub.closeModal()">Batal</button>',
+            '<button type="button" class="btn-danger" style="padding:10px 24px; font-weight:700" onclick="EventHub.executeDeleteEvent(\'' + evId + '\')">Ya, Hapus Acara Permanen</button>',
+          '</div>',
+        '</div>'
       );
     } else if (App.activeModal === 'profile') {
       var u = Store.getCurrentUser();
@@ -688,9 +755,17 @@
 
         // Viewfinder
         '<div class="scanner-viewfinder" style="border-radius:18px; margin-bottom:14px; height:240px; background:#000000; position:relative; overflow:hidden">',
-          '<video id="quick-scanner-video" style="width:100%; height:100%; object-fit:cover; display:block"></video>',
+          '<video id="quick-scanner-video" playsinline webkit-playsinline autoplay muted style="width:100%; height:100%; object-fit:cover; display:block"></video>',
           '<canvas id="quick-scanner-canvas" style="display:none"></canvas>',
           '<div class="scanner-laser-beam" style="animation:laserSweep 1.8s infinite"></div>',
+          '<div id="quick-scanner-fallback" style="display:none; position:absolute; inset:0; background:#0f172a; flex-direction:column; align-items:center; justify-content:center; padding:16px; text-align:center; z-index:5">',
+            '<div style="font-size:2.2rem; margin-bottom:6px">📷</div>',
+            '<b style="color:#ffffff; font-size:0.95rem">Kamera Belum Aktif</b>',
+            '<p style="font-size:0.75rem; color:#94a3b8; margin:4px 0 12px; max-width:280px">Izinkan akses kamera di peramban atau klik tombol di bawah untuk menyalakan ulang.</p>',
+            '<button type="button" class="btn-primary" style="width:auto; padding:8px 18px; font-size:0.8rem; background:linear-gradient(135deg, #6366f1, #8b5cf6)" onclick="EventHub.restartQuickScanCamera()">',
+              '▶️ Nyalakan Kamera',
+            '</button>',
+          '</div>',
           '<div style="position:absolute; bottom:10px; left:0; right:0; text-align:center; z-index:4">',
             '<span style="background:rgba(0,0,0,0.7); color:#ffffff; font-size:0.75rem; font-weight:700; padding:4px 12px; border-radius:99px; backdrop-filter:blur(8px)">',
               'Arahkan Kamera ke Kode QR Tiket',
@@ -1233,6 +1308,50 @@
       renderModal();
     },
 
+    confirmDeleteEvent: function(eventId) {
+      if (Sound) Sound.playClick();
+      App.activeModal = 'deleteEventConfirm';
+      App.modalData = eventId;
+      renderModal();
+    },
+
+    executeDeleteEvent: function(eventId) {
+      var user = Store.getCurrentUser();
+      if (!user) {
+        Router.showToast('Silakan login terlebih dahulu.', 'error');
+        return;
+      }
+      try {
+        var ev = Store.getEventById(eventId);
+        var evTitle = ev ? ev.title : eventId;
+        Store.deleteEvent(eventId, user, true);
+        if (Sound) Sound.playBuzz();
+        Router.showToast('Acara "' + evTitle + '" berhasil dihapus.', 'success');
+
+        var remainingEvents = Store.getOrganizerEvents(user.email);
+        if (remainingEvents.length > 0) {
+          App.activeOrganizerEventId = remainingEvents[0].id;
+        } else {
+          App.activeOrganizerEventId = null;
+        }
+        this.closeModal();
+        if (App.currentRoute === 'detail' && App.routeParam === eventId) {
+          if (user.role === 'penyelenggara') {
+            Router.navigate('organizer');
+          } else if (user.role === 'superadmin') {
+            Router.navigate('admin');
+          } else {
+            Router.navigate('home');
+          }
+        } else {
+          renderApp();
+        }
+      } catch (err) {
+        if (Sound) Sound.playError();
+        Router.showToast(err.message, 'error');
+      }
+    },
+
     saveEventForm: function(eventId) {
       var title = document.getElementById('ev-title').value.trim();
       var cat = document.getElementById('ev-cat').value;
@@ -1305,6 +1424,9 @@
     },
 
     closeModal: function() {
+      if (window.EventScannerService) {
+        window.EventScannerService.stopCamera();
+      }
       App.activeModal = null;
       App.modalData = null;
       renderModal();
@@ -1814,10 +1936,124 @@
       }
     },
 
-    handleMediaUpload: function(fileInput, targetInputId, previewElId, isVideo) {
-      if (!fileInput || !fileInput.files || !fileInput.files[0]) return;
-      var file = fileInput.files[0];
-      Router.showToast('Memproses & mengunggah file...', 'info');
+    renderBannerPreviewHtml: function(url) {
+      if (!url) return '<small style="color:#64748b; display:block; margin-top:6px">Belum ada foto banner yang dipilih.</small>';
+      return [
+        '<div class="media-preview-container">',
+          '<div class="media-preview-badge">✓ Banner Aktif</div>',
+          '<button type="button" class="media-remove-btn" onclick="EventHub.clearMedia(\'ev-banner\', \'ev-banner-preview\', false)">✕ Hapus Banner</button>',
+          '<img src="' + url + '" style="width:100%; height:130px; object-fit:cover; display:block">',
+        '</div>'
+      ].join('');
+    },
+
+    renderTrailerPreviewHtml: function(url) {
+      if (!url) return '<small style="color:#64748b; display:block; margin-top:6px">Belum ada video trailer yang dipilih.</small>';
+      return [
+        '<div class="media-preview-container">',
+          '<div class="media-preview-badge">✓ Video Aktif</div>',
+          '<button type="button" class="media-remove-btn" onclick="EventHub.clearMedia(\'ev-trailer\', \'ev-trailer-preview\', true)">✕ Hapus Video</button>',
+          '<video src="' + url + '" controls autoplay loop muted style="width:100%; height:160px; object-fit:cover; display:block"></video>',
+        '</div>'
+      ].join('');
+    },
+
+    renderGalleryPreviewHtml: function(images) {
+      if (!images || !images.length) return '<small style="color:#64748b; display:block; margin-top:6px">Belum ada foto galeri.</small>';
+      var cards = images.map(function(img, idx) {
+        return [
+          '<div style="position:relative; width:90px; height:70px; border-radius:8px; overflow:hidden; border:1px solid var(--border-glass); flex-shrink:0">',
+            '<img src="' + img + '" style="width:100%; height:100%; object-fit:cover; display:block">',
+            '<button type="button" style="position:absolute; top:3px; right:3px; background:rgba(244,63,94,0.9); color:white; border:none; border-radius:50%; width:20px; height:20px; display:flex; align-items:center; justify-content:center; font-size:10px; cursor:pointer" title="Hapus foto ini" onclick="EventHub.removeGalleryImage(' + idx + ')">✕</button>',
+          '</div>'
+        ].join('');
+      });
+      return [
+        '<div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center; margin-top:8px">',
+          cards.join(''),
+          '<button type="button" class="btn-secondary" style="padding:6px 12px; font-size:0.75rem; height:70px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:4px" onclick="document.getElementById(\'ev-gallery-files\').click()">',
+            '<span>➕</span><span>Tambah</span>',
+          '</button>',
+        '</div>',
+        '<div style="font-size:0.72rem; color:#64748b; margin-top:6px">Total: ' + images.length + ' foto galeri. Klik ✕ pada foto untuk menghapusnya.</div>'
+      ].join('');
+    },
+
+    clearMedia: function(targetInputId, previewElId, isVideo) {
+      var targetInput = document.getElementById(targetInputId);
+      if (targetInput) targetInput.value = '';
+      var prevBox = document.getElementById(previewElId);
+      if (prevBox) {
+        if (isVideo) {
+          prevBox.innerHTML = this.renderTrailerPreviewHtml('');
+        } else {
+          prevBox.innerHTML = this.renderBannerPreviewHtml('');
+        }
+      }
+      Router.showToast('Media dihapus.', 'info');
+    },
+
+    removeGalleryImage: function(index) {
+      var target = document.getElementById('ev-gallery');
+      if (!target) return;
+      var items = target.value ? target.value.split(',').map(function(s){ return s.trim(); }).filter(Boolean) : [];
+      if (index >= 0 && index < items.length) {
+        items.splice(index, 1);
+        target.value = items.join(',');
+        var prev = document.getElementById('ev-gallery-preview');
+        if (prev) prev.innerHTML = this.renderGalleryPreviewHtml(items);
+        Router.showToast('Foto galeri dihapus.', 'info');
+      }
+    },
+
+    handleDragOver: function(e, dropzoneEl) {
+      e.preventDefault();
+      e.stopPropagation();
+      if (dropzoneEl) dropzoneEl.classList.add('dragover');
+    },
+
+    handleDragLeave: function(e, dropzoneEl) {
+      e.preventDefault();
+      e.stopPropagation();
+      if (dropzoneEl) dropzoneEl.classList.remove('dragover');
+    },
+
+    handleDropMedia: function(e, targetInputId, previewElId, isVideo, dropzoneEl) {
+      e.preventDefault();
+      e.stopPropagation();
+      if (dropzoneEl) dropzoneEl.classList.remove('dragover');
+      var dt = e.dataTransfer;
+      if (!dt || !dt.files || !dt.files.length) return;
+      var file = dt.files[0];
+      if (isVideo && !file.type.startsWith('video/')) {
+        Router.showToast('Harap pilih/tarik file video (.mp4 atau .webm)', 'error');
+        return;
+      }
+      if (!isVideo && !file.type.startsWith('image/')) {
+        Router.showToast('Harap pilih/tarik file gambar (.jpg, .png, .webp)', 'error');
+        return;
+      }
+      this.processMediaFile(file, targetInputId, previewElId, isVideo);
+    },
+
+    handleDropGallery: function(e, dropzoneEl) {
+      e.preventDefault();
+      e.stopPropagation();
+      if (dropzoneEl) dropzoneEl.classList.remove('dragover');
+      var dt = e.dataTransfer;
+      if (!dt || !dt.files || !dt.files.length) return;
+      var imageFiles = Array.from(dt.files).filter(function(f){ return f.type.startsWith('image/'); });
+      if (imageFiles.length === 0) {
+        Router.showToast('Harap tarik file foto / gambar.', 'error');
+        return;
+      }
+      this.processGalleryFiles(imageFiles);
+    },
+
+    processMediaFile: function(file, targetInputId, previewElId, isVideo) {
+      if (!file) return;
+      var self = this;
+      Router.showToast('Memproses file ' + file.name + '...', 'info');
 
       var reader = new FileReader();
       reader.onload = async function(e) {
@@ -1842,15 +2078,63 @@
         var prevBox = document.getElementById(previewElId);
         if (prevBox) {
           if (isVideo) {
-            prevBox.innerHTML = '<video src="' + finalUrl + '" autoplay loop muted style="height:120px; border-radius:10px; border:1px solid var(--border-glass)"></video><div style="font-size:0.75rem; color:#10b981; margin-top:4px">✓ Video berhasil dipilih: ' + file.name + '</div>';
+            prevBox.innerHTML = self.renderTrailerPreviewHtml(finalUrl);
           } else {
-            prevBox.innerHTML = '<img src="' + finalUrl + '" style="height:90px; border-radius:10px; border:1px solid var(--border-glass)"><div style="font-size:0.75rem; color:#10b981; margin-top:4px">✓ Foto berhasil dipilih: ' + file.name + '</div>';
+            prevBox.innerHTML = self.renderBannerPreviewHtml(finalUrl);
           }
         }
         if (Sound) Sound.playSuccess();
-        Router.showToast('File ' + (isVideo ? 'video' : 'foto') + ' berhasil dipilih!', 'success');
+        Router.showToast('File ' + (isVideo ? 'video' : 'foto') + ' berhasil dimuat!', 'success');
       };
       reader.readAsDataURL(file);
+    },
+
+    processGalleryFiles: function(files) {
+      if (!files || !files.length) return;
+      var self = this;
+      var targetInput = document.getElementById('ev-gallery');
+      var currentGallery = [];
+      if (targetInput && targetInput.value) {
+        currentGallery = targetInput.value.split(',').map(function(s){ return s.trim(); }).filter(Boolean);
+      }
+
+      Router.showToast('Memproses ' + files.length + ' foto...', 'info');
+      var processed = 0;
+
+      files.forEach(function(file) {
+        var reader = new FileReader();
+        reader.onload = async function(e) {
+          var dataUri = e.target.result;
+          var finalUrl = dataUri;
+          try {
+            var res = await fetch('/api/upload-media', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ filename: file.name, data: dataUri })
+            });
+            var json = await res.json();
+            if (json && json.success && json.url) finalUrl = json.url;
+          } catch (err) {}
+
+          currentGallery.push(finalUrl);
+          processed++;
+
+          if (processed === files.length) {
+            if (targetInput) targetInput.value = currentGallery.join(',');
+            var prevBox = document.getElementById('ev-gallery-preview');
+            if (prevBox) prevBox.innerHTML = self.renderGalleryPreviewHtml(currentGallery);
+            if (Sound) Sound.playSuccess();
+            Router.showToast(files.length + ' foto galeri berhasil ditambahkan!', 'success');
+          }
+        };
+        reader.readAsDataURL(file);
+      });
+    },
+
+    handleMediaUpload: function(fileInput, targetInputId, previewElId, isVideo) {
+      if (!fileInput || !fileInput.files || !fileInput.files[0]) return;
+      this.processMediaFile(fileInput.files[0], targetInputId, previewElId, isVideo);
+      fileInput.value = '';
     },
 
     setPresetMedia: function(targetInputId, previewElId, url, isVideo) {
@@ -1861,9 +2145,9 @@
       var prevBox = document.getElementById(previewElId);
       if (prevBox) {
         if (isVideo) {
-          prevBox.innerHTML = '<video src="' + url + '" autoplay loop muted style="height:120px; border-radius:10px; border:1px solid var(--border-glass)"></video>';
+          prevBox.innerHTML = this.renderTrailerPreviewHtml(url);
         } else {
-          prevBox.innerHTML = '<img src="' + url + '" style="height:90px; border-radius:10px; border:1px solid var(--border-glass)">';
+          prevBox.innerHTML = this.renderBannerPreviewHtml(url);
         }
       }
       Router.showToast('Template ' + (isVideo ? 'video' : 'foto') + ' berhasil diterapkan!', 'success');
@@ -1871,62 +2155,70 @@
 
     handleGalleryUpload: function(fileInput) {
       if (!fileInput || !fileInput.files || !fileInput.files.length) return;
-      var files = Array.from(fileInput.files);
-      var currentGallery = [];
-      var targetInput = document.getElementById('ev-gallery');
-      if (targetInput && targetInput.value) {
-        currentGallery = targetInput.value.split(',').map(function(s){ return s.trim(); }).filter(Boolean);
-      }
-
-      Router.showToast('Memproses ' + files.length + ' foto galeri...', 'info');
-
-      var readCount = 0;
-      files.forEach(function(f) {
-        var reader = new FileReader();
-        reader.onload = async function(e) {
-          var dataUri = e.target.result;
-          var finalUrl = dataUri;
-          try {
-            var res = await fetch('/api/upload-media', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ filename: f.name, data: dataUri })
-            });
-            var json = await res.json();
-            if (json && json.success && json.url) finalUrl = json.url;
-          } catch (err) {}
-
-          currentGallery.push(finalUrl);
-          readCount++;
-          if (readCount === files.length) {
-            if (targetInput) targetInput.value = currentGallery.join(',');
-            var prevBox = document.getElementById('ev-gallery-preview');
-            if (prevBox) {
-              prevBox.innerHTML = currentGallery.map(function(img){
-                return '<img src="' + img + '" style="height:60px; width:80px; object-fit:cover; border-radius:8px; border:1px solid var(--border-glass)">';
-              }).join('');
-            }
-            if (Sound) Sound.playSuccess();
-            Router.showToast(files.length + ' foto galeri berhasil ditambahkan!', 'success');
-          }
-        };
-        reader.readAsDataURL(f);
-      });
+      this.processGalleryFiles(Array.from(fileInput.files));
+      fileInput.value = '';
     },
 
     openQuickScanModal: function() {
       if (Sound) Sound.playClick();
+      if (window.EventScannerService) {
+        window.EventScannerService.stopCamera();
+      }
       App.activeModal = 'quickScan';
       renderModal();
 
       // Start WebRTC camera in quick viewfinder
-      setTimeout(function() {
-        if (window.EventScannerService) {
-          window.EventScannerService.startCamera('quick-scanner-video', function(code) {
+      setTimeout(async function() {
+        var videoEl = document.getElementById('quick-scanner-video');
+        var fallbackEl = document.getElementById('quick-scanner-fallback');
+        if (!videoEl || !window.EventScannerService) return;
+
+        var success = await window.EventScannerService.startCamera(
+          videoEl,
+          function(code) {
             EventHub.processTicketScan(code);
-          });
+          },
+          function(err) {
+            Router.showToast(err, 'error');
+            if (fallbackEl) fallbackEl.style.display = 'flex';
+          }
+        );
+        if (success && fallbackEl) {
+          fallbackEl.style.display = 'none';
         }
-      }, 250);
+      }, 100);
+    },
+
+    restartQuickScanCamera: async function() {
+      var videoEl = document.getElementById('quick-scanner-video');
+      var fallbackEl = document.getElementById('quick-scanner-fallback');
+      if (fallbackEl) fallbackEl.style.display = 'none';
+      if (!videoEl || !window.EventScannerService) return;
+
+      Router.showToast('Menghubungkan ke kamera...', 'info');
+      var success = await window.EventScannerService.startCamera(
+        videoEl,
+        function(code) {
+          EventHub.processTicketScan(code);
+        },
+        function(err) {
+          Router.showToast(err, 'error');
+          if (fallbackEl) fallbackEl.style.display = 'flex';
+        }
+      );
+      if (success && fallbackEl) {
+        fallbackEl.style.display = 'none';
+        Router.showToast('Kamera aktif! Arahkan ke kode QR tiket.', 'success');
+      }
+    },
+
+    resumeQuickScan: function() {
+      if (window.EventScannerService) {
+        window.EventScannerService.resume();
+      }
+      var resBox = document.getElementById('quick-scan-result-container');
+      if (resBox) resBox.innerHTML = '';
+      Router.showToast('Kamera siap memindai tiket berikutnya.', 'info');
     },
 
     doQuickScanInput: function() {
@@ -1968,10 +2260,13 @@
           resBox.innerHTML = [
             '<div style="background:' + bannerBg + '; border:1px solid ' + bannerBorder + '; padding:14px; border-radius:12px; margin-top:12px; display:flex; align-items:flex-start; gap:12px">',
               '<div style="font-size:1.6rem">' + bannerIcon + '</div>',
-              '<div>',
+              '<div style="flex:1">',
                 '<b style="color:#ffffff; font-size:0.95rem">' + result.message + '</b>',
                 result.ticket ? '<div style="font-size:0.8rem; color:#cbd5e1; margin-top:2px">' + result.ticket.buyerName + ' (' + result.ticket.tierName + ') • ' + result.ticket.eventName + '</div>' : '',
                 '<div style="font-size:0.75rem; color:#94a3b8; margin-top:2px">Kode: <code>' + code + '</code></div>',
+                '<button type="button" class="btn-secondary" style="margin-top:10px; padding:6px 14px; font-size:0.78rem; width:100%; display:flex; align-items:center; justify-content:center; gap:6px" onclick="EventHub.resumeQuickScan()">',
+                  '<span>🔄</span><span>Scan Tiket Berikutnya</span>',
+                '</button>',
               '</div>',
             '</div>'
           ].join('');
@@ -2073,5 +2368,11 @@
     renderApp();
     // Smooth splash preloader animation on initial page load
     Router.triggerPreloader('Menyiapkan Sistem Tiket Event...', 850);
+  });
+
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape' && App.activeModal) {
+      EventHub.closeModal();
+    }
   });
 })(window);

@@ -93,6 +93,10 @@
               '<button class="pos-nav-item ' + (currentActiveTab === 'charges' ? 'active' : '') + '" onclick="EventOrganizer.setActiveTab(\'charges\')">',
                 '<span>📊</span> Dashboard Kasir',
               '</button>',
+              '<button class="pos-nav-item ' + (currentActiveTab === 'events' ? 'active' : '') + '" onclick="EventOrganizer.setActiveTab(\'events\')">',
+                '<span>🎪</span> Kelola Semua Acara',
+                '<span class="pos-nav-badge" style="background:#8b5cf6">' + myEvents.length + '</span>',
+              '</button>',
               '<button class="pos-nav-item ' + (currentActiveTab === 'history' ? 'active' : '') + '" onclick="EventOrganizer.setActiveTab(\'history\')">',
                 '<span>🎟️</span> Riwayat Gate Check-in',
                 checkedInTickets.length ? '<span class="pos-nav-badge" style="background:#10b981">' + checkedInTickets.length + '</span>' : '',
@@ -117,6 +121,9 @@
               '<button class="pos-nav-item" onclick="EventHub.openCreateEventModal()">',
                 '<span>➕</span> Buat Event Baru',
               '</button>',
+              '<button class="pos-nav-item" style="color:#fb7185; border:1px solid rgba(244,63,94,0.25); background:rgba(244,63,94,0.06); margin-top:6px" onclick="EventHub.confirmDeleteEvent(\'' + currentEvent.id + '\')">',
+                '<span>🗑️</span> Hapus Acara Ini',
+              '</button>',
             '</div>',
 
             '<div>',
@@ -135,7 +142,7 @@
 
             '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; flex-wrap:wrap; gap:12px">',
               '<h1 class="pos-page-title" style="margin-bottom:0">POS Desk Kasir & Gate Scanner</h1>',
-              '<div style="display:flex; align-items:center; gap:8px">',
+              '<div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap">',
                 '<span style="font-size:0.8rem; color:#64748b; font-weight:700">PILIH EVENT:</span>',
                 '<select class="filter-select" style="font-weight:700; padding:8px 14px" onchange="EventHub.switchOrganizerEvent(this.value)">'
       ];
@@ -150,6 +157,8 @@
 
       html.push(
                 '</select>',
+                '<button class="btn-secondary" style="padding:7px 12px; font-size:0.78rem" onclick="EventHub.openEditEventModal(\'' + currentEvent.id + '\')" title="Edit Acara Ini">⚙️ Edit</button>',
+                '<button class="btn-danger" style="padding:7px 12px; font-size:0.78rem; display:inline-flex; align-items:center; gap:4px" onclick="EventHub.confirmDeleteEvent(\'' + currentEvent.id + '\')" title="Hapus Acara Ini">🗑️ Hapus</button>',
               '</div>',
             '</div>',
 
@@ -194,6 +203,7 @@
               '<div>',
                 '<div class="pos-tabs-row">',
                   '<button class="pos-tab-btn ' + (currentActiveTab === 'charges' ? 'active' : '') + '" onclick="EventOrganizer.setActiveTab(\'charges\')">Rincian Tiket & Kasir</button>',
+                  '<button class="pos-tab-btn ' + (currentActiveTab === 'events' ? 'active' : '') + '" onclick="EventOrganizer.setActiveTab(\'events\')">🎪 Kelola Semua Acara (' + myEvents.length + ')</button>',
                   '<button class="pos-tab-btn ' + (currentActiveTab === 'history' ? 'active' : '') + '" onclick="EventOrganizer.setActiveTab(\'history\')">Riwayat Check-In Gate (' + checkedInTickets.length + ')</button>',
                   '<button class="pos-tab-btn ' + (currentActiveTab === 'refunds' ? 'active' : '') + '" onclick="EventOrganizer.setActiveTab(\'refunds\')">Pengajuan Refund (' + pendingRefunds.length + ')</button>',
                   '<button class="pos-tab-btn ' + (currentActiveTab === 'moneyflow' ? 'active' : '') + '" onclick="EventOrganizer.setActiveTab(\'moneyflow\')">📈 MoneyFlow Finansial</button>',
@@ -326,6 +336,82 @@
                 '<span>📐 <b>Rumus Net Payout:</b> <code>Penerimaan Bersih = Harga Bruto - Komisi Platform (10%) = 90%</code></span>',
                 '<span><b>Margin Netto:</b> <code>' + (chargesTotalBruto > 0 ? ((chargesTotalNet / chargesTotalBruto) * 100).toFixed(1) : '90.0') + '%</code></span>',
               '</div>',
+            '</div>',
+          '</div>'
+        );
+      } else if (currentActiveTab === 'events') {
+        html.push(
+          '<div class="pos-table-card">',
+            '<div style="padding:16px 20px; border-bottom:1px solid rgba(255,255,255,0.08); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px">',
+              '<div>',
+                '<b style="font-size:1.1rem; color:#ffffff">Daftar & Pengaturan Acara Anda</b><br>',
+                '<small style="color:#94a3b8">Kelola semua acara yang Anda buat, ubah informasi, atau hapus acara yang diinginkan</small>',
+              '</div>',
+              '<button class="btn-primary" style="width:auto; padding:8px 16px; font-size:0.82rem; display:inline-flex; align-items:center; gap:6px" onclick="EventHub.openCreateEventModal()">',
+                '<span>➕</span> Buat Acara Baru',
+              '</button>',
+            '</div>',
+            '<div style="overflow-x:auto">',
+              '<table class="pos-table">',
+                '<thead>',
+                  '<tr>',
+                    '<th>Acara</th>',
+                    '<th>Kategori</th>',
+                    '<th>Jadwal & Lokasi</th>',
+                    '<th style="text-align:center">Tiket Terjual</th>',
+                    '<th style="text-align:right">Omset Bersih</th>',
+                    '<th style="text-align:center">Status POS</th>',
+                    '<th style="text-align:center">Aksi & Pengaturan</th>',
+                  '</tr>',
+                '</thead>',
+                '<tbody>'
+        );
+
+        myEvents.forEach(function(ev) {
+          var evTix = Store.getTickets().filter(function(t){ return t.eventId === ev.id && t.status !== 'refunded'; });
+          var evTotalQuota = ev.tiers.reduce(function(a, t){ return a + t.quota; }, 0);
+          var evGross = evTix.reduce(function(a, t){ return a + t.price; }, 0);
+          var evNet = Math.round(evGross * 0.90);
+          var isCurrent = (ev.id === currentEvent.id);
+
+          html.push(
+            '<tr style="' + (isCurrent ? 'background:rgba(99,102,241,0.08);' : '') + '">',
+              '<td>',
+                '<div style="display:flex; align-items:center; gap:12px">',
+                  (ev.bannerImg ? '<img src="' + ev.bannerImg + '" style="width:48px; height:48px; border-radius:8px; object-fit:cover; border:1px solid var(--border-glass)">' : '<div style="width:48px; height:48px; border-radius:8px; background:linear-gradient(135deg, #6366f1, #8b5cf6); display:flex; align-items:center; justify-content:center; font-size:1.2rem">🎪</div>'),
+                  '<div>',
+                    '<b style="color:#ffffff; font-size:0.95rem">' + ev.title + '</b><br>',
+                    '<small style="color:#64748b">ID: ' + ev.id + '</small>',
+                  '</div>',
+                '</div>',
+              '</td>',
+              '<td><span class="category-pill" style="font-size:0.75rem; padding:4px 10px">' + ev.category + '</span></td>',
+              '<td>',
+                '<div><b>' + ev.date + '</b></div>',
+                '<small style="color:#94a3b8">' + ev.venue + ', ' + ev.city + '</small>',
+              '</td>',
+              '<td style="text-align:center">',
+                '<b style="color:#38bdf8">' + evTix.length + '</b> / ' + evTotalQuota + ' Tiket',
+              '</td>',
+              '<td style="text-align:right; font-weight:700; color:#34d399">',
+                formatRp(evNet),
+              '</td>',
+              '<td style="text-align:center">',
+                (isCurrent ? '<span style="color:#10b981; font-weight:700; font-size:0.78rem; background:rgba(168,85,247,0.15); border:1px solid rgba(168,85,247,0.3); padding:4px 8px; border-radius:6px">⭐ Aktif di POS</span>' : '<button class="btn-secondary" style="padding:4px 10px; font-size:0.75rem" onclick="App.activeOrganizerEventId=\'' + ev.id + '\'; EventOrganizer.setActiveTab(\'charges\');">Pilih Event</button>'),
+              '</td>',
+              '<td style="text-align:center">',
+                '<div style="display:inline-flex; gap:6px; align-items:center">',
+                  '<button class="btn-secondary" style="padding:5px 10px; font-size:0.78rem" onclick="EventHub.openEditEventModal(\'' + ev.id + '\')" title="Edit Detail Acara">⚙️ Edit</button>',
+                  '<button class="btn-danger" style="padding:5px 10px; font-size:0.78rem; display:inline-flex; align-items:center; gap:4px" onclick="EventHub.confirmDeleteEvent(\'' + ev.id + '\')" title="Hapus Acara">🗑️ Hapus</button>',
+                '</div>',
+              '</td>',
+            '</tr>'
+          );
+        });
+
+        html.push(
+                '</tbody>',
+              '</table>',
             '</div>',
           '</div>'
         );

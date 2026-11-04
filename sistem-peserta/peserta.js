@@ -825,6 +825,17 @@
                 '<div style="display:flex; align-items:center; gap:10px; margin-bottom:4px">',
                   '<h2 style="font-size:1.45rem; font-weight:800; color:#ffffff">' + user.name + '</h2>',
                   '<span class="user-role-tag role-' + user.role + '" style="font-size:0.75rem; padding:3px 10px">' + (user.role === 'peserta' ? 'Peserta Terdaftar' : user.role) + '</span>',
+                  (function() {
+                    var sub = Store.getUserSubscription(user.email);
+                    if (!sub) return '';
+                    var days = Store.getSubscriptionDaysRemaining ? Store.getSubscriptionDaysRemaining(sub.expiresAt) : 0;
+                    if (sub.active && !sub.isExpired) {
+                      return '<span class="brand-vip-badge badge-' + sub.planId + '" style="margin-left:6px">👑 ' + sub.badgeText + ' (' + (sub.duration || '1 Bulan') + ' • Sisa ' + days + ' Hari)</span>';
+                    } else if (sub.isExpired) {
+                      return '<span class="duration-badge badge-1bulan" style="background:rgba(244,63,94,0.15); color:#fb7185; border:1px solid rgba(244,63,94,0.3); margin-left:6px">👑 ' + sub.planName + ' (Expired)</span>';
+                    }
+                    return '';
+                  })(),
                 '</div>',
                 '<div style="color:var(--text-muted); font-size:0.88rem; display:flex; align-items:center; gap:14px; flex-wrap:wrap">',
                   '<span>✉️ ' + user.email + ' <small style="color:#10b981; font-weight:700">(Terverifikasi)</small></span>',

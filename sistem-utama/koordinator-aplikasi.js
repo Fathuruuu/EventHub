@@ -640,18 +640,25 @@
 
         '<div style="display:grid; grid-template-columns:1fr 1fr; gap:12px">',
           '<div class="form-group">',
-            '<label class="form-label">Harga per Bulan (Rp)</label>',
+            '<label class="form-label">Harga Durasi 1 Bulan (Rp)</label>',
             '<input class="form-control" id="plan-price" type="number" value="' + plan.price + '">',
+          '</div>',
+          '<div class="form-group">',
+            '<label class="form-label">Harga Durasi 1 Tahun (Rp)</label>',
+            '<input class="form-control" id="plan-price-yearly" type="number" value="' + (plan.priceYearly || plan.price * 10) + '">',
+            '<small style="color:#10b981; font-weight:600">Disarankan bayar 10 bulan hemat 2 bulan.</small>',
+          '</div>',
+        '</div>',
+
+        '<div style="display:grid; grid-template-columns:1fr 1fr; gap:12px">',
+          '<div class="form-group">',
+            '<label class="form-label">Nama Sub-Paket</label>',
+            '<input class="form-control" id="plan-name" value="' + plan.name + '">',
           '</div>',
           '<div class="form-group">',
             '<label class="form-label">Teks Badge (Header & Tiket)</label>',
             '<input class="form-control" id="plan-badge" value="' + (plan.badgeText || '') + '">',
           '</div>',
-        '</div>',
-
-        '<div class="form-group">',
-          '<label class="form-label">Nama Sub-Paket</label>',
-          '<input class="form-control" id="plan-name" value="' + plan.name + '">',
         '</div>',
 
         '<div class="form-group">',
@@ -1862,6 +1869,7 @@
         return;
       }
       var price = Number(document.getElementById('plan-price').value);
+      var priceYearly = Number(document.getElementById('plan-price-yearly').value) || (price * 10);
       var name = document.getElementById('plan-name').value.trim();
       var badge = document.getElementById('plan-badge').value.trim();
       var benefitsRaw = document.getElementById('plan-benefits').value.trim();
@@ -1872,6 +1880,7 @@
       try {
         Store.updateMembership(planId, {
           price: price,
+          priceYearly: priceYearly,
           name: name,
           badgeText: badge,
           benefits: benefits,

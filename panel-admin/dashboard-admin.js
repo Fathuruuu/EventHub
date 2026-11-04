@@ -494,6 +494,7 @@
                   '<th>Email Akun</th>',
                   '<th>WhatsApp</th>',
                   '<th>Paket VIP</th>',
+                  '<th>Durasi & Masa Berlaku</th>',
                   '<th>Diskon Tiket</th>',
                   '<th>Hak Akses Gate</th>',
                   '<th>Status</th>',
@@ -503,19 +504,22 @@
         );
 
         if (subscribers.length === 0) {
-          html.push('<tr><td colspan="7" style="text-align:center; padding:36px; color:#64748b">Belum ada peserta yang berlangganan membership Fast-Track VIP.</td></tr>');
+          html.push('<tr><td colspan="8" style="text-align:center; padding:36px; color:#64748b">Belum ada peserta yang berlangganan membership Fast-Track VIP.</td></tr>');
         } else {
           subscribers.forEach(function(sub) {
             var s = sub.subscription;
+            var daysRemaining = Store.getSubscriptionDaysRemaining ? Store.getSubscriptionDaysRemaining(s.expiresAt) : 0;
+            var isExpired = s.isExpired || !s.active;
             html.push(
               '<tr>',
                 '<td><b style="color:#ffffff">' + sub.name + '</b></td>',
                 '<td><code>' + sub.email + '</code></td>',
                 '<td>' + sub.phone + '</td>',
                 '<td><span class="brand-vip-badge badge-' + s.planId + '">' + s.badgeText + '</span> ' + s.planName + '</td>',
+                '<td><span class="duration-badge badge-' + (s.durationKey || '1bulan') + '">' + (s.duration || '1 Bulan') + '</span><br><small style="color:#94a3b8">' + (s.startedAt || '-') + ' s/d ' + (s.expiresAt || '-') + '</small></td>',
                 '<td><b style="color:#10b981">' + (s.discountPercent || 10) + '% OFF</b></td>',
                 '<td><span style="color:#fbbf24; font-weight:700">⚡ Jalur Prioritas Ekspres</span></td>',
-                '<td><span style="color:#10b981; font-weight:700">✓ Aktif</span></td>',
+                '<td>' + (!isExpired ? '<span style="color:#10b981; font-weight:700">✓ Aktif (Sisa ' + daysRemaining + ' hari)</span>' : '<span style="color:#f43f5e; font-weight:700">⏳ Kedaluwarsa</span>') + '</td>',
               '</tr>'
             );
           });

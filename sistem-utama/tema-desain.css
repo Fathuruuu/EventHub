@@ -1322,3 +1322,74 @@ main#app-root {
 .media-remove-btn:hover {
   background: #f43f5e;
 }
+
+/* Billing Duration Toggle (1 Bulan vs 1 Tahun) */
+.billing-toggle-wrapper {
+  display: flex;
+  justify-content: center;
+  margin: 20px 0 32px;
+}
+.billing-toggle-box {
+  display: inline-flex;
+  background: rgba(15, 23, 42, 0.75);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  padding: 4px;
+  border-radius: 99px;
+  gap: 4px;
+  backdrop-filter: blur(12px);
+}
+.billing-toggle-btn {
+  background: transparent;
+  border: none;
+  color: #94a3b8;
+  font-weight: 700;
+  font-size: 0.85rem;
+  padding: 8px 20px;
+  border-radius: 99px;
+  cursor: pointer;
+  transition: all 0.22s ease;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.billing-toggle-btn:hover {
+  color: #ffffff;
+}
+.billing-toggle-btn.active {
+  background: linear-gradient(135deg, #a855f7, #6366f1);
+  color: #ffffff;
+  box-shadow: 0 4px 14px rgba(168, 85, 247, 0.45);
+}
+.save-pill {
+  background: rgba(16, 185, 129, 0.2);
+  color: #34d399;
+  border: 1px solid rgba(16, 185, 129, 0.4);
+  font-size: 0.7rem;
+  padding: 2px 8px;
+  border-radius: 99px;
+  font-weight: 800;
+}
+.billing-toggle-btn.active .save-pill {
+  background: rgba(255, 255, 255, 0.22);
+  color: #ffffff;
+  border-color: rgba(255, 255, 255, 0.35);
+}
+.duration-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 6px;
+  font-size: 0.72rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.duration-badge.badge-1bulan {
+  background: rgba(56, 189, 248, 0.15);
+  color: #38bdf8;
+  border: 1px solid rgba(56, 189, 248, 0.3);
+}
+.duration-badge.badge-1tahun {
+  background: rgba(251, 191, 36, 0.15);
+  color: #fbbf24;
+  border: 1px solid rgba(251, 191, 36, 0.3);
+}

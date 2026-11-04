@@ -21,6 +21,8 @@
 
   var businessSvg = '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path></svg>';
 
+  var currentBillingCycle = '1bulan';
+
   var FastTrackModule = {
     renderFastTrackView: function() {
       var user = Store.getCurrentUser();
@@ -67,6 +69,7 @@
           name: meta.mainName,
           subName: p.name,
           price: p.price,
+          priceYearly: p.priceYearly || (p.price * 10),
           priceSub: meta.priceSub,
           iconSvg: meta.iconSvg,
           buttonText: meta.buttonText,
@@ -74,6 +77,8 @@
           features: p.benefits || []
         };
       });
+
+      var billingCycle = currentBillingCycle;
 
       var html = [
         '<div class="shadcn-pricing-container view-animated">',
@@ -104,23 +109,68 @@
 
       html.push('</div>'); // Close shadcn-header
 
-      // Current Active Plan Alert (If already subscribed)
-      if (currentSub && currentSub.active) {
-        html.push(
-          '<div style="background:rgba(139,92,246,0.12); border:1px solid rgba(139,92,246,0.35); padding:16px 24px; border-radius:20px; margin-bottom:36px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px">',
-            '<div style="display:flex; align-items:center; gap:14px">',
-              '<div style="font-size:2rem">👑</div>',
-              '<div>',
-                '<div style="font-size:0.75rem; font-weight:800; color:#c084fc; text-transform:uppercase; letter-spacing:1px">STATUS MEMBERSHIP AKTIF ANDA</div>',
-                '<b style="font-size:1.15rem; color:#ffffff">' + currentSub.planName + '</b> <span class="brand-vip-badge badge-' + currentSub.planId + '">' + currentSub.badgeText + '</span>',
-                '<div style="font-size:0.8rem; color:#94a3b8; margin-top:2px">Jalur Fast-Track Gate Aktif • Diskon ' + (currentSub.discountPercent || 10) + '% Otomatis • Berlaku hingga ' + (currentSub.expiresAt || '2026-12-31') + '</div>',
-              '</div>',
-            '</div>',
-            '<button class="shadcn-btn shadcn-btn-secondary" style="width:auto; padding:8px 18px; font-size:0.85rem" onclick="EventHub.go(\'tickets\')">',
-              '🎟️ Lihat E-Tiket Fast-Track Saya',
+      // Interactive Billing Duration Switcher (1 Bulan vs 1 Tahun)
+      html.push(
+        '<div class="billing-toggle-wrapper">',
+          '<div class="billing-toggle-box">',
+            '<button type="button" class="billing-toggle-btn ' + (billingCycle === '1bulan' ? 'active' : '') + '" onclick="EventFastTrack.setBillingCycle(\'1bulan\')">',
+              '<span>📅</span> 1 Bulan (Bulanan)',
             '</button>',
-          '</div>'
-        );
+            '<button type="button" class="billing-toggle-btn ' + (billingCycle === '1tahun' ? 'active' : '') + '" onclick="EventFastTrack.setBillingCycle(\'1tahun\')">',
+              '<span>🌟</span> 1 Tahun (Tahunan) <span class="save-pill">Hemat 2 Bulan (~20%)</span>',
+            '</button>',
+          '</div>',
+        '</div>'
+      );
+
+      // Current Active / Expired Plan Alert
+      if (currentSub) {
+        var daysRemaining = Store.getSubscriptionDaysRemaining ? Store.getSubscriptionDaysRemaining(currentSub.expiresAt) : 30;
+        var isExpired = currentSub.isExpired || !currentSub.active;
+
+        if (!isExpired) {
+          html.push(
+            '<div style="background:rgba(139,92,246,0.12); border:1px solid rgba(139,92,246,0.35); padding:18px 24px; border-radius:20px; margin-bottom:32px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:14px">',
+              '<div style="display:flex; align-items:center; gap:14px">',
+                '<div style="font-size:2.2rem">👑</div>',
+                '<div>',
+                  '<div style="font-size:0.75rem; font-weight:800; color:#c084fc; text-transform:uppercase; letter-spacing:1px; display:flex; align-items:center; gap:8px">',
+                    '<span>STATUS MEMBERSHIP AKTIF ANDA</span>',
+                    '<span class="duration-badge badge-' + (currentSub.durationKey || '1bulan') + '">' + (currentSub.duration || '1 Bulan') + '</span>',
+                  '</div>',
+                  '<div style="margin:4px 0">',
+                    '<b style="font-size:1.15rem; color:#ffffff">' + currentSub.planName + '</b> <span class="brand-vip-badge badge-' + currentSub.planId + '">' + currentSub.badgeText + '</span>',
+                  '</div>',
+                  '<div style="font-size:0.82rem; color:#cbd5e1">',
+                    'Jalur Fast-Track Aktif • Diskon ' + (currentSub.discountPercent || 10) + '% Otomatis • Masa Berlaku: <b>' + (currentSub.startedAt || 'Hari Ini') + '</b> s/d <b>' + (currentSub.expiresAt || '-') + '</b> ',
+                    '<span style="background:rgba(16,185,129,0.2); color:#34d399; font-weight:800; font-size:0.75rem; padding:2px 8px; border-radius:99px; margin-left:6px">Sisa ' + daysRemaining + ' Hari Lagi</span>',
+                  '</div>',
+                '</div>',
+              '</div>',
+              '<button class="shadcn-btn shadcn-btn-secondary" style="width:auto; padding:8px 18px; font-size:0.85rem" onclick="EventHub.go(\'tickets\')">',
+                '🎟️ Lihat E-Tiket Fast-Track Saya',
+              '</button>',
+            '</div>'
+          );
+        } else {
+          html.push(
+            '<div style="background:rgba(244,63,94,0.12); border:1px solid rgba(244,63,94,0.35); padding:18px 24px; border-radius:20px; margin-bottom:32px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:14px">',
+              '<div style="display:flex; align-items:center; gap:14px">',
+                '<div style="font-size:2.2rem">⏳</div>',
+                '<div>',
+                  '<div style="font-size:0.75rem; font-weight:800; color:#fb7185; text-transform:uppercase; letter-spacing:1px">MEMBERSHIP TELAH KEDALUWARSA (EXPIRED)</div>',
+                  '<div style="margin:4px 0">',
+                    '<b style="font-size:1.15rem; color:#ffffff">' + currentSub.planName + ' (' + (currentSub.duration || '1 Bulan') + ')</b> <span class="duration-badge badge-1bulan" style="background:rgba(244,63,94,0.2); color:#fb7185">Kedaluwarsa</span>',
+                  '</div>',
+                  '<div style="font-size:0.82rem; color:#cbd5e1">Masa aktif paket Anda telah berakhir pada <b>' + (currentSub.expiresAt || '-') + '</b>. Pilih paket durasi di bawah untuk memperpanjang jalur Fast-Track.</div>',
+                '</div>',
+              '</div>',
+              '<button class="btn-primary" style="width:auto; padding:8px 18px; font-size:0.85rem; background:linear-gradient(135deg, #f43f5e, #fb7185); border:none" onclick="document.querySelector(\'.shadcn-cards-wrapper\').scrollIntoView({behavior:\'smooth\'})">',
+                '🔄 Perpanjang Paket Sekarang',
+              '</button>',
+            '</div>'
+          );
+        }
       }
 
       // 3 Cards Layout (Pixel-Aligned with Reference Image)
@@ -164,11 +214,13 @@
 
             // Bottom Section: CTA Button + Anchored Price
             '<div>',
-              (isCurrent ? (
-                '<button class="shadcn-btn shadcn-btn-secondary" style="background:rgba(16,185,129,0.15); color:#34d399; border-color:rgba(16,185,129,0.3)" disabled>✓ Paket Sedang Digunakan</button>'
-              ) : (
-                '<button class="shadcn-btn ' + (plan.isFeatured ? 'shadcn-btn-primary' : 'shadcn-btn-secondary') + '" onclick="EventFastTrack.subscribe(\'' + plan.id + '\')">' + plan.buttonText + '</button>'
-              )),
+              (function() {
+                var isThisCurrent = isCurrent && !currentSub.isExpired && (currentSub.durationKey === billingCycle || (!currentSub.durationKey && billingCycle === '1bulan'));
+                if (isThisCurrent) {
+                  return '<button class="shadcn-btn shadcn-btn-secondary" style="background:rgba(16,185,129,0.15); color:#34d399; border-color:rgba(16,185,129,0.3)" disabled>✓ Paket ' + (billingCycle === '1tahun' ? '1 Tahun' : '1 Bulan') + ' Aktif</button>';
+                }
+                return '<button class="shadcn-btn ' + (plan.isFeatured ? 'shadcn-btn-primary' : 'shadcn-btn-secondary') + '" onclick="EventFastTrack.subscribe(\'' + plan.id + '\', \'' + billingCycle + '\')">Pilih Paket (' + (billingCycle === '1tahun' ? '1 Tahun' : '1 Bulan') + ')</button>';
+              })(),
 
               // HANYA ADMIN YANG DAPAT MELIHAT TOMBOL EDIT HARGA PER KARTU
               (isSuperAdmin ? (
@@ -176,8 +228,8 @@
               ) : ''),
 
               '<div class="shadcn-price-section">',
-                '<div class="shadcn-price-val">' + formatRp(plan.price) + '<span class="shadcn-price-unit">/month</span></div>',
-                '<div class="shadcn-price-sub">' + plan.priceSub + '</div>',
+                '<div class="shadcn-price-val">' + formatRp((billingCycle === '1tahun') ? (plan.priceYearly || plan.price * 10) : plan.price) + '<span class="shadcn-price-unit">' + ((billingCycle === '1tahun') ? '/tahun' : '/bulan') + '</span></div>',
+                '<div class="shadcn-price-sub">' + ((billingCycle === '1tahun') ? '(setara ' + formatRp(Math.round((plan.priceYearly || plan.price * 10) / 12)) + '/bulan • Hemat 2 bulan)' : '(ditagih setiap 1 bulan)') + '</div>',
               '</div>',
             '</div>',
           '</div>'
@@ -211,9 +263,9 @@
               '<thead>',
                 '<tr>',
                   '<th>Nama Peserta</th>',
-                  '<th>Email Akun</th>',
                   '<th>WhatsApp</th>',
                   '<th>Paket VIP</th>',
+                  '<th>Durasi & Masa Berlaku</th>',
                   '<th>Diskon Tiket</th>',
                   '<th>Hak Akses Gate</th>',
                   '<th>Status Langganan</th>',
@@ -233,15 +285,18 @@
         } else {
           subscribers.forEach(function(sub) {
             var s = sub.subscription;
+            var daysRemaining = Store.getSubscriptionDaysRemaining ? Store.getSubscriptionDaysRemaining(s.expiresAt) : 0;
+            var isExpired = s.isExpired || !s.active;
             html.push(
               '<tr>',
                 '<td><b style="color:#ffffff">' + sub.name + '</b></td>',
                 '<td><code>' + sub.email + '</code></td>',
                 '<td>' + sub.phone + '</td>',
                 '<td><span class="brand-vip-badge badge-' + s.planId + '">' + s.badgeText + '</span> ' + s.planName + '</td>',
+                '<td><span class="duration-badge badge-' + (s.durationKey || '1bulan') + '">' + (s.duration || '1 Bulan') + '</span><br><small style="color:#94a3b8">' + (s.startedAt || '-') + ' s/d ' + (s.expiresAt || '-') + '</small></td>',
                 '<td><b style="color:#10b981">' + (s.discountPercent || 10) + '% OFF</b></td>',
                 '<td><span style="color:#fbbf24; font-weight:700">⚡ Jalur Prioritas Ekspres</span></td>',
-                '<td><span style="color:#10b981; font-weight:700">✓ Aktif</span></td>',
+                '<td>' + (!isExpired ? '<span style="color:#10b981; font-weight:700">✓ Aktif (Sisa ' + daysRemaining + ' hari)</span>' : '<span style="color:#f43f5e; font-weight:700">⏳ Kedaluwarsa</span>') + '</td>',
               '</tr>'
             );
           });
@@ -258,7 +313,18 @@
       return html.join('');
     },
 
-    subscribe: function(planId) {
+    setBillingCycle: function(cycle) {
+      currentBillingCycle = (cycle === '1tahun') ? '1tahun' : '1bulan';
+      if (Sound) Sound.playClick();
+      EventHub.renderApp();
+    },
+
+    getBillingCycle: function() {
+      return currentBillingCycle;
+    },
+
+    subscribe: function(planId, duration) {
+      duration = duration || currentBillingCycle || '1bulan';
       var user = Store.getCurrentUser();
       if (!user) {
         Router.showToast('Silakan masuk terlebih dahulu untuk mengaktifkan paket VIP Anda.', 'warning');
@@ -267,10 +333,10 @@
       }
 
       try {
-        var sub = Store.subscribePlan(planId, user);
+        var sub = Store.subscribePlan(planId, user, duration);
         if (Sound) Sound.playFanfare();
         if (Confetti) Confetti.celebrate();
-        Router.showToast('Selamat! Anda resmi menjadi ' + sub.planName + '. Badge ' + sub.badgeText + ' aktif di akun Anda!', 'success', 5000);
+        Router.showToast('Selamat! Anda resmi mengaktifkan ' + sub.planName + ' durasi ' + sub.duration + '. Berlaku hingga ' + sub.expiresAt + '!', 'success', 5000);
         EventHub.renderApp();
       } catch (err) {
         if (Sound) Sound.playError();

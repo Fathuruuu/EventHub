@@ -74,9 +74,9 @@
       updatedAt: '2026-11-04 10:00 WIB'
     },
     memberships: [
-      { id: 'silver', name: 'Silver Express', price: 29000, badgeColor: '#94a3b8', icon: '🥈', badgeText: 'SILVER', benefits: ['Akses Fast-Track Gate Masuk (1x per bulan)', 'Diskon tiket 5% untuk semua acara', 'Badge eksklusif Silver Member di E-Tiket', 'Customer Support prioritas standar'] },
-      { id: 'gold', name: 'Gold VIP Pass', price: 59000, badgeColor: '#fbbf24', popular: true, icon: '🥇', badgeText: 'GOLD VIP', benefits: ['Akses Fast-Track UNLIMITED di semua gate masuk acara', 'Akses Presale H-2 sebelum penjualan dibuka ke publik', 'Diskon tiket 10% setiap pembelian', 'Gratis welcome drink di VIP zone acara', 'Badge emas Gold VIP Member berkilau di header & tiket'] },
-      { id: 'platinum', name: 'Platinum Black Access', price: 99000, badgeColor: '#ec4899', icon: '👑', badgeText: 'PLATINUM', benefits: ['Jalur Prioritas VVIP Gate (Zero Wait Time)', 'Akses VIP Lounge & Sesi Soundcheck Artis', 'Diskon tiket 15% setiap pembelian', 'Bebas biaya layanan platform (0% service fee)', 'Jaminan refund instan 100% tanpa potongan', 'Badge eksklusif Platinum Black Member di header & tiket'] }
+      { id: 'silver', name: 'Silver Express', price: 29000, priceYearly: 290000, badgeColor: '#94a3b8', icon: '🥈', badgeText: 'SILVER', benefits: ['Akses Fast-Track Gate Masuk (1x per bulan)', 'Diskon tiket 5% untuk semua acara', 'Badge eksklusif Silver Member di E-Tiket', 'Customer Support prioritas standar'] },
+      { id: 'gold', name: 'Gold VIP Pass', price: 59000, priceYearly: 590000, badgeColor: '#fbbf24', popular: true, icon: '🥇', badgeText: 'GOLD VIP', benefits: ['Akses Fast-Track UNLIMITED di semua gate masuk acara', 'Akses Presale H-2 sebelum penjualan dibuka ke publik', 'Diskon tiket 10% setiap pembelian', 'Gratis welcome drink di VIP zone acara', 'Badge emas Gold VIP Member berkilau di header & tiket'] },
+      { id: 'platinum', name: 'Platinum Black Access', price: 99000, priceYearly: 990000, badgeColor: '#ec4899', icon: '👑', badgeText: 'PLATINUM', benefits: ['Jalur Prioritas VVIP Gate (Zero Wait Time)', 'Akses VIP Lounge & Sesi Soundcheck Artis', 'Diskon tiket 15% setiap pembelian', 'Bebas biaya layanan platform (0% service fee)', 'Jaminan refund instan 100% tanpa potongan', 'Badge eksklusif Platinum Black Member di header & tiket'] }
     ]
   };
 
@@ -94,6 +94,15 @@
           if (!parsed.activityLogs || !parsed.activityLogs.length) parsed.activityLogs = JSON.parse(JSON.stringify(INITIAL_DATA.activityLogs || []));
           if (!parsed.messages || !parsed.messages.length) parsed.messages = JSON.parse(JSON.stringify(INITIAL_DATA.messages || []));
           if (!parsed.feedbacks || !parsed.feedbacks.length) parsed.feedbacks = JSON.parse(JSON.stringify(INITIAL_DATA.feedbacks || []));
+          if (!parsed.memberships || !parsed.memberships.length) {
+            parsed.memberships = JSON.parse(JSON.stringify(INITIAL_DATA.memberships));
+          } else {
+            parsed.memberships.forEach(function(m) {
+              if (typeof m.priceYearly === 'undefined') {
+                m.priceYearly = m.id === 'platinum' ? 990000 : m.id === 'gold' ? 590000 : 290000;
+              }
+            });
+          }
           return parsed;
         }
       }
@@ -1245,22 +1254,45 @@
       if (!plan) throw new Error('Paket membership tidak ditemukan: ' + planId);
 
       if (typeof updatedFields.price !== 'undefined') plan.price = Math.max(0, Number(updatedFields.price));
+      if (typeof updatedFields.priceYearly !== 'undefined') plan.priceYearly = Math.max(0, Number(updatedFields.priceYearly));
       if (updatedFields.name) plan.name = updatedFields.name.trim();
       if (updatedFields.badgeText) plan.badgeText = updatedFields.badgeText.trim();
       if (Array.isArray(updatedFields.benefits)) plan.benefits = updatedFields.benefits;
       if (typeof updatedFields.popular !== 'undefined') plan.popular = Boolean(updatedFields.popular);
 
       saveData(DB);
-      this.logActivity('Ubah Harga Subscription', 'Super Admin memperbarui harga/rincian paket ' + plan.name + ' menjadi Rp ' + plan.price.toLocaleString('id-ID'), adminUser);
+      this.logActivity('Ubah Harga Subscription', 'Super Admin memperbarui paket ' + plan.name + ' (Bulanan: Rp ' + plan.price.toLocaleString('id-ID') + ' / Tahunan: Rp ' + (plan.priceYearly || plan.price*10).toLocaleString('id-ID') + ')', adminUser);
       return plan;
     },
     getUserSubscription: function(userEmail) {
       if (!userEmail) return null;
       var u = DB.users.find(function(x) { return x.email.toLowerCase() === userEmail.toLowerCase(); });
-      return (u && u.subscription && u.subscription.active) ? u.subscription : null;
+      if (!u || !u.subscription) return null;
+      var sub = u.subscription;
+      if (sub.expiresAt) {
+        var today = new Date().toISOString().split('T')[0];
+        if (today > sub.expiresAt) {
+          sub.active = false;
+          sub.isExpired = true;
+        } else {
+          sub.isExpired = false;
+        }
+      }
+      return sub;
     },
 
-    subscribePlan: function(planId, user) {
+    getSubscriptionDaysRemaining: function(expiresAt) {
+      if (!expiresAt) return 0;
+      var today = new Date();
+      today.setHours(0, 0, 0, 0);
+      var exp = new Date(expiresAt);
+      exp.setHours(0, 0, 0, 0);
+      var diffTime = exp.getTime() - today.getTime();
+      var diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+      return Math.max(0, diffDays);
+    },
+
+    subscribePlan: function(planId, user, duration) {
       if (!user) throw new Error('Silakan masuk terlebih dahulu untuk berlangganan Fast-Track VIP.');
       var plan = (DB.memberships || []).find(function(m) { return m.id === planId; });
       if (!plan) throw new Error('Paket membership tidak ditemukan.');
@@ -1268,16 +1300,32 @@
       var u = DB.users.find(function(x) { return x.email.toLowerCase() === user.email.toLowerCase(); });
       if (!u) throw new Error('Pengguna tidak ditemukan.');
 
+      duration = (duration === '1tahun') ? '1tahun' : '1bulan';
+      var d = new Date();
+      var startedAt = d.toISOString().split('T')[0];
+      var expDate = new Date(d);
+      if (duration === '1tahun') {
+        expDate.setFullYear(expDate.getFullYear() + 1);
+      } else {
+        expDate.setMonth(expDate.getMonth() + 1);
+      }
+      var expiresAt = expDate.toISOString().split('T')[0];
+      var pricePaid = (duration === '1tahun') ? (plan.priceYearly || plan.price * 10) : plan.price;
+
       u.subscription = {
         planId: plan.id,
         planName: plan.name,
         badgeText: plan.badgeText,
         badgeColor: plan.badgeColor,
+        duration: duration === '1tahun' ? '1 Tahun' : '1 Bulan',
+        durationKey: duration,
+        pricePaid: pricePaid,
         active: true,
+        isExpired: false,
         fastTrack: true,
         discountPercent: plan.id === 'platinum' ? 15 : plan.id === 'gold' ? 10 : 5,
-        startedAt: new Date().toISOString().split('T')[0],
-        expiresAt: '2026-12-31'
+        startedAt: startedAt,
+        expiresAt: expiresAt
       };
 
       if (currentUser && currentUser.email.toLowerCase() === u.email.toLowerCase()) {
@@ -1286,7 +1334,7 @@
       }
 
       saveData(DB);
-      this.logActivity('Langganan VIP', 'Berhasil berlangganan paket ' + plan.name + ' (' + plan.badgeText + ')', u);
+      this.logActivity('Langganan VIP', 'Berhasil mengaktifkan ' + plan.name + ' (' + plan.badgeText + ') durasi ' + u.subscription.duration + ' hingga ' + expiresAt, u);
       return u.subscription;
     },
 

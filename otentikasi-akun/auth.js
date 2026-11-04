@@ -32,17 +32,6 @@
         Router.showToast('Kode OTP ' + code + ' otomatis disalin!', 'success');
       }
     },
-    quickLogin: function(email, password) {
-      var emailInput = document.getElementById('auth-email');
-      var passInput = document.getElementById('auth-password');
-      if (emailInput) emailInput.value = email;
-      if (passInput) passInput.value = password;
-      if (Sound) Sound.playClick();
-      Router.showToast('Memuat kredensial akun: ' + email, 'info', 1500);
-      setTimeout(function() {
-        AuthModule.submitAuth();
-      }, 250);
-    },
 
     cancelToLogin: function() {
       authScreen = 'form';
@@ -293,34 +282,6 @@
             : 'Belum punya akun? <a href="javascript:void(0)" style="color:#818cf8; font-weight:700" onclick="EventAuth.cancelToRegister()">Daftar Akun Baru</a>',
         '</div>'
       );
-      if (!isRegister) {
-        html.push(
-          '<div style="margin-top:20px; padding:12px; background:rgba(99,102,241,0.08); border:1px dashed rgba(99,102,241,0.35); border-radius:12px">',
-            '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px">',
-              '<span style="font-size:0.75rem; font-weight:800; color:#a5b4fc; letter-spacing:0.5px">⚡ AKUN DEMO CEPAT (1-KLIK LOGIN)</span>',
-              '<span style="font-size:0.68rem; color:var(--text-muted); background:rgba(255,255,255,0.06); padding:2px 8px; border-radius:10px">Langsung Masuk</span>',
-            '</div>',
-            '<div style="display:grid; grid-template-columns:1fr 1fr; gap:8px">',
-              '<button type="button" class="btn-demo-chip" onclick="EventAuth.quickLogin(\'admin@eventhub.id\', \'admin123\')" style="text-align:left; padding:8px 10px; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.1); border-radius:8px; cursor:pointer; color:#fff">',
-                '<div style="font-size:0.78rem; font-weight:700">👑 Super Admin</div>',
-                '<div style="font-size:0.68rem; color:#94a3b8">admin@eventhub.id</div>',
-              '</button>',
-              '<button type="button" class="btn-demo-chip" onclick="EventAuth.quickLogin(\'promotor@nusantara.id\', \'promotor123\')" style="text-align:left; padding:8px 10px; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.1); border-radius:8px; cursor:pointer; color:#fff">',
-                '<div style="font-size:0.78rem; font-weight:700">🎪 Penyelenggara</div>',
-                '<div style="font-size:0.68rem; color:#94a3b8">promotor@nusantara.id</div>',
-              '</button>',
-              '<button type="button" class="btn-demo-chip" onclick="EventAuth.quickLogin(\'budi@gmail.com\', \'peserta123\')" style="text-align:left; padding:8px 10px; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.1); border-radius:8px; cursor:pointer; color:#fff">',
-                '<div style="font-size:0.78rem; font-weight:700">⚡ Peserta VIP Gold</div>',
-                '<div style="font-size:0.68rem; color:#94a3b8">budi@gmail.com</div>',
-              '</button>',
-              '<button type="button" class="btn-demo-chip" onclick="EventAuth.quickLogin(\'siti@gmail.com\', \'peserta123\')" style="text-align:left; padding:8px 10px; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.1); border-radius:8px; cursor:pointer; color:#fff">',
-                '<div style="font-size:0.78rem; font-weight:700">👤 Peserta Reguler</div>',
-                '<div style="font-size:0.68rem; color:#94a3b8">siti@gmail.com</div>',
-              '</button>',
-            '</div>',
-          '</div>'
-        );
-      }
 
       return html.join('');
     },

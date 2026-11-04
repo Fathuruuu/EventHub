@@ -155,16 +155,14 @@ npm run android:open
 
 ---
 
-## Skenario Demonstrasi Siap Coba
+## Alur Uji Coba Mandiri (Mulai dari Nol)
 
-Panduan lengkap skenario pengujian interaktif tersedia di berkas **`demo-project/README.md`**:
+Platform siap digunakan secara bersih dari nol (0 data dummy). Panduan pengujian langkah demi langkah tersedia di **`demo-project/README.md`**:
 
-1. **Uji Coba POS Kasir Gate Scanner:** Buka berkas `demo-project/tiket-qr-tester.html` di layar HP atau tab terpisah. Gunakan akun Penyelenggara untuk memindai kode QR:
-   - `TKT-DEMO-VALID-01` ➔ Berstatus **VALID** dengan respons audio chime sukses dan indikator `⚡ FAST-TRACK ACCESS`.
-   - `TKT-DEMO-USED-01` ➔ Berstatus **ALREADY USED** dengan respons audio buzz penolakan tiket ganda.
-   - `TKT-DEMO-REFUND-01` ➔ Berstatus **REFUNDED** dengan notifikasi tiket dibatalkan.
-2. **Uji Coba Promo Voucher:** Beli tiket acara musik dan terapkan kode diskon `VIPHEMAT10` atau `ESPORTS2026`.
-3. **Uji Coba WAF Firewall:** Masuk sebagai Super Admin untuk melihat pantauan grafik insiden keamanan dan log penyerang.
+1. **Buat Acara Baru:** Masuk sebagai Penyelenggara atau Super Admin, buka **Panel Penyelenggara**, lalu klik **➕ Buat Acara Baru** untuk menerbitkan event dan mengatur kuota tiket.
+2. **Pemesanan Tiket:** Masuk sebagai Peserta, pilih acara yang telah dibuat, dan lakukan checkout simulasi untuk menerbitkan e-tiket dengan kode QR aktif.
+3. **Validasi Tiket POS Kasir:** Buka menu **Kasir & Gate Scanner** untuk memindai kode QR tiket via kamera WebRTC (30 FPS) dengan audio feedback prosedural.
+4. **Monitoring Keamanan WAF:** Buka **Platform Admin** untuk memantau grafik deteksi serangan (SQLi, XSS, Path Traversal) dan log insiden real-time.
 
 ### Menjalankan Automated Test Suite
 ```bash

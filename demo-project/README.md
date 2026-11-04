@@ -12,40 +12,34 @@ Paket demonstrasi ini dirancang agar penilai, penguji, dan pengembang dapat lang
 
 ---
 
-## ⚡ 4 Skenario Pengujian Interaktif
+## ⚡ 4 Alur Pengujian Mandiri (Mulai dari Nol)
 
-### Skenario 1: Peserta Membeli Tiket & Mengklaim Promo Voucher
+### Skenario 1: Penyelenggara Membuat & Menerbitkan Acara Perdana
 1. Buka browser: `http://localhost:3000/index.html`.
-2. Klik tombol **Masuk / Daftar** di kanan atas.
-3. Masuk sebagai akun Peserta VIP (atau klik tombol cepat role Peserta pada modal).
-4. Perhatikan badge **GOLD VIP** berkilau aktif di header navigasi samping logo.
-5. Pilih acara **Pesta Musik Indie Jakarta 2026** di halaman utama.
-6. Klik **Beli Tiket Sekarang**, pilih kategori tiket **Presale Regular Gate A**, masukkan kode voucher `VIPHEMAT10`, lalu klik **Terapkan**.
-7. Konfirmasi pembelian: amati efek suara perayaan dan partikel confetti animasi.
-8. Buka menu **Tiket Saya**: E-tiket digital dengan kode QR dan badge Fast-Track otomatis diterbitkan!
+2. Klik tombol **Masuk / Daftar** ➔ Pilih **Daftar Akun Baru** sebagai **Penyelenggara Acara**.
+3. Setelah akun aktif, buka **Panel Penyelenggara** ➔ Klik **➕ Buat Acara Baru**.
+4. Isi judul event, kategori (Musik/Teknologi/Gaming/Workshop), kota, tanggal, dan kuota tiket.
+5. Klik **Terbitkan Acara**: Acara baru langsung tampil di halaman depan katalog utama.
 
-### Skenario 2: Penyelenggara Menggunakan Pos Kasir Gate Scanner
-1. Masuk sebagai Penyelenggara Acara (Organizer).
-2. Buka menu **Panel Penyelenggara** atau klik tombol bulat **Scan Tiket** di bilah bawah.
-3. Buka berkas `demo-project/tiket-qr-tester.html` di ponsel Anda atau tab browser terpisah:
-   - **Uji Tiket 1 (`TKT-DEMO-VALID-01`):** Arahkan scanner kamera ke QR valid ini. Sistem memutar suara chime sukses, status gate berubah menjadi hijau, dan muncul tanda `⚡ FAST-TRACK VIP ACCESS`.
-   - **Uji Tiket 2 (`TKT-DEMO-USED-01`):** Arahkan ke tiket yang sudah pernah dipakai. Sistem membunyikan buzz error dan menampilkan peringatan bahwa tiket sudah check-in pada pukul 14:15 WIB.
-   - **Uji Tiket 3 (`TKT-DEMO-REFUND-01`):** Arahkan ke tiket refund. Sistem langsung menolak tiket dengan status dibatalkan.
+### Skenario 2: Peserta Membeli Tiket & Menerbitkan E-Tiket QR
+1. Masuk atau daftar akun sebagai **Peserta Event**.
+2. Pilih acara yang telah diterbitkan di beranda, lalu klik **Beli Tiket**.
+3. Konfirmasi pembayaran: sistem menjalankan simulasi transaksi dan partikel confetti animasi.
+4. Buka menu **Tiket Saya**: E-tiket digital lengkap dengan kode QR instan berhasil diterbitkan.
 
-### Skenario 3: Alur Refund Transparan
-1. Masuk sebagai Peserta yang mengajukan refund.
-2. Buka menu **Refund**: Terlihat pengajuan refund pending untuk tiket `TKT-DEMO-PENDING-01`.
-3. Masuk sebagai Penyelenggara Acara pada tab/jendela lain.
-4. Masuk ke **Panel Penyelenggara** → Tab **Pusat Refund**.
-5. Klik **Setujui Refund** atau **Tolak** dengan catatan: status tiket dan riwayat tersinkronisasi instan.
+### Skenario 3: Penyelenggara Memvalidasi Tiket di POS Kasir Gate Scanner
+1. Masuk menggunakan akun Penyelenggara pemilik acara.
+2. Buka menu **Panel Penyelenggara** ➔ Tab **Kasir & Gate Scanner** (atau klik tombol **Scan Tiket** di bilah bawah).
+3. Arahkan kamera ke kode QR e-tiket peserta atau ketik kode manualnya:
+   - **Check-in Pertama:** Suara chime nada ganda berbunyi, status hijau VALID, dan tiket ditandai telah digunakan.
+   - **Scan Ulang (Tiket Ganda):** Suara buzz peringatan berbunyi dan menolak akses masuk untuk mencegah kecurangan.
 
-### Skenario 4: Super Admin Monitoring Firewall & Zero-Knowledge Privacy
-1. Masuk menggunakan akun hak akses Super Administrator.
+### Skenario 4: Super Admin Monitoring Firewall & CMS Platform
+1. Masuk menggunakan akun dengan hak akses Super Administrator.
 2. Buka menu **Platform Admin**:
-   - Tab **Keamanan Firewall (WAF)**: Pantau total serangan terblokir, mode agresif, dan log insiden real-time.
-   - Tab **Audit Pengguna**: Perhatikan bahwa identitas root admin disembunyikan dan dienkripsi menjadi `Administrator Sistem (Privat)`.
-   - Tab **CMS Hero Banner**: Ubah judul headline atau video background hero secara visual langsung di layar utama.
-
+   - Tab **Keamanan Firewall (WAF)**: Pantau total request yang diinspeksi, jumlah serangan terblokir, dan log insiden real-time.
+   - Tab **Approval Penyelenggara**: Verifikasi dan setujui pendaftaran promotor baru.
+   - Tab **CMS Hero Banner**: Ubah headline dan background video hero banner secara visual.
 ---
 
 ## 🧪 Menjalankan Automated Test

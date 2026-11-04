@@ -5,8 +5,8 @@
 (function(window) {
   'use strict';
 
-  var STORAGE_KEY = 'eventhub_pro_demo_v6';
-  var AUTH_KEY = 'eventhub_pro_demo_auth_v6';
+  var STORAGE_KEY = 'eventhub_clean_zero_v7';
+  var AUTH_KEY = 'eventhub_clean_zero_auth_v7';
 
   // AUTOMATIC PURGE: Hapus tuntas seluruh sisa data demo lama di localStorage browser pengunjung
   try {
@@ -16,163 +16,46 @@
   } catch (e) {}
 
   var INITIAL_DATA = {
+    // HANYA AKUN ROOT ADMIN (Seluruh akun demo dibersihkan total)
     users: [
-      { id: 'usr-admin', name: 'EventHub Super Administrator', email: 'admin@eventhub.id', password: 'admin123', role: 'superadmin', phone: '08001234567', company: 'EventHub Enterprise', status: 'active', rejectionReason: '', avatarText: 'AD', verified: true, subscription: null, createdAt: '2026-01-01' },
-      { id: 'usr-org-promotor', name: 'Promotor Musik Nusantara', email: 'promotor@nusantara.id', password: 'promotor123', role: 'penyelenggara', phone: '081288990011', company: 'PT Nada Kreasi Nusantara', status: 'active', rejectionReason: '', avatarText: 'PN', verified: true, subscription: null, createdAt: '2026-01-10' },
-      { id: 'usr-org-soundfest', name: 'Soundfest Organizer Jakarta', email: 'soundfest@nusantara.id', password: 'soundfest123', role: 'penyelenggara', phone: '081377889900', company: 'Soundfest Productions', status: 'active', rejectionReason: '', avatarText: 'SO', verified: true, subscription: null, createdAt: '2026-01-15' },
-      { id: 'usr-org-tech', name: 'Indonesia Tech Fest', email: 'techfest@nusantara.id', password: 'techfest123', role: 'penyelenggara', phone: '081122334455', company: 'Tech Innovate Indonesia', status: 'active', rejectionReason: '', avatarText: 'IT', verified: true, subscription: null, createdAt: '2026-02-01' },
-      { id: 'usr-peserta-budi', name: 'Budi Pratama VIP', email: 'budi@gmail.com', password: 'peserta123', role: 'peserta', phone: '081234567890', company: '', status: 'active', rejectionReason: '', avatarText: 'BP', verified: true, subscription: { active: true, planId: 'gold', planName: 'Gold VIP Pass', badgeText: 'GOLD VIP', endDate: '2026-12-31' }, createdAt: '2026-02-10' },
-      { id: 'usr-peserta-siti', name: 'Siti Rahma', email: 'siti@gmail.com', password: 'peserta123', role: 'peserta', phone: '081987654321', company: '', status: 'active', rejectionReason: '', avatarText: 'SR', verified: true, subscription: null, createdAt: '2026-02-14' },
-      { id: 'usr-peserta-reza', name: 'Reza Kurniawan', email: 'reza@gmail.com', password: 'peserta123', role: 'peserta', phone: '085678901234', company: '', status: 'active', rejectionReason: '', avatarText: 'RK', verified: true, subscription: { active: true, planId: 'silver', planName: 'Silver Express', badgeText: 'SILVER', endDate: '2026-11-30' }, createdAt: '2026-02-20' }
-    ],
-    events: [
       {
-        id: 'EVT-BAT0',
-        title: 'Pesta Musik Indie Jakarta 2026',
-        category: 'Konser Musik',
-        city: 'Jakarta',
-        date: '2026-11-28',
-        time: '16:00 - 23:00 WIB',
-        venue: 'Stadion Madya GBK, Senayan',
-        description: 'Festival musik indie terbesar se-Asia Tenggara dengan penampilan panggung spektakuler dari musisi papan atas nasional dan internasional. Dilengkapi zona kuliner festival, booth merchandise eksklusif, dan visual laser megah.',
-        bannerImg: 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=1600&auto=format&fit=crop&q=80',
-        videoTrailer: 'https://assets.mixkit.co/videos/preview/mixkit-audience-at-a-music-concert-holding-lights-42537-large.mp4',
-        galleryImages: [
-          'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=1200&auto=format&fit=crop&q=80',
-          'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=1200&auto=format&fit=crop&q=80',
-          'https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=1200&auto=format&fit=crop&q=80'
-        ],
-        organizerId: 'usr-org-promotor',
-        organizerName: 'Promotor Musik Nusantara',
-        organizerEmail: 'promotor@nusantara.id',
+        id: 'usr-admin',
+        name: 'EventHub Super Administrator',
+        email: 'admin@eventhub.id',
+        password: 'admin123',
+        role: 'superadmin',
+        phone: '08001234567',
+        company: 'EventHub Enterprise',
         status: 'active',
-        gradient: 'linear-gradient(135deg, #4f46e5, #7c3aed, #db2777)',
-        badgeColor: '#6366f1',
-        createdAt: '2026-01-10',
-        tiers: [
-          { id: 'tier-bat0-1', name: 'Early Bird Festival', price: 150000, quota: 200, sold: 200, description: 'Akses Gate Festival Early Bird (SOLD OUT)' },
-          { id: 'tier-bat0-2', name: 'Presale Regular Gate A', price: 250000, quota: 500, sold: 340, description: 'Akses Gate Regular A & Free Drink Voucher' },
-          { id: 'tier-bat0-3', name: 'VIP Soundcheck Experience', price: 550000, quota: 150, sold: 95, description: 'Akses Fast-Track Gate, Baris Terdepan, dan Sesi Soundcheck Musisi' },
-          { id: 'tier-bat0-4', name: 'VVIP Royal Lounge Access', price: 950000, quota: 50, sold: 38, description: 'Akses Fast-Track VVIP Gate, Free Flow Beverage & VIP Lounge' }
-        ]
-      },
-      {
-        id: 'EVT-F6OQ',
-        title: 'Nusantara Esports Championship 2026',
-        category: 'Gaming',
-        city: 'Bandung',
-        date: '2026-12-05',
-        time: '10:00 - 21:00 WIB',
-        venue: 'Sabuga ITB Convention Hall',
-        description: 'Turnamen esports akbar tahunan memperebutkan total hadiah Rp 500.000.000! Saksikan pertempuran tim pro terbaik MLBB, Valorant, dan PUBG Mobile di arena panggung megah berlayar LED 360 derajat.',
-        bannerImg: 'https://images.unsplash.com/photo-1542751371-adc38448a05e?w=1600&auto=format&fit=crop&q=80',
-        videoTrailer: 'https://assets.mixkit.co/videos/preview/mixkit-gamers-playing-online-games-in-a-cyber-cafe-41481-large.mp4',
-        galleryImages: [
-          'https://images.unsplash.com/photo-1542751371-adc38448a05e?w=1200&auto=format&fit=crop&q=80',
-          'https://images.unsplash.com/photo-1511512578047-dfb367046420?w=1200&auto=format&fit=crop&q=80'
-        ],
-        organizerId: 'usr-org-soundfest',
-        organizerName: 'Soundfest Organizer Jakarta',
-        organizerEmail: 'soundfest@nusantara.id',
-        status: 'active',
-        gradient: 'linear-gradient(135deg, #0284c7, #06b6d4, #10b981)',
-        badgeColor: '#06b6d4',
-        createdAt: '2026-01-15',
-        tiers: [
-          { id: 'tier-f6oq-1', name: 'General Tribune (1 Day)', price: 75000, quota: 800, sold: 620, description: 'Kursi Tribun Penonton & Akses Expo Gaming' },
-          { id: 'tier-f6oq-2', name: 'Gamer Pass + Exclusive T-Shirt', price: 175000, quota: 300, sold: 210, description: 'Akses Semua Stage Pertandingan + Kaos Resmi Turnamen' },
-          { id: 'tier-f6oq-3', name: 'VIP Front Row Player Stage', price: 350000, quota: 100, sold: 75, description: 'Akses Fast-Track Gate, Duduk di Area VIP Depan Pro Player, & Meet and Greet' }
-        ]
-      },
-      {
-        id: 'EVT-TECH',
-        title: 'Indonesia Tech & AI Summit 2026',
-        category: 'Teknologi',
-        city: 'Jakarta',
-        date: '2026-12-12',
-        time: '09:00 - 17:00 WIB',
-        venue: 'Jakarta Convention Center (JCC) Senayan',
-        description: 'Konferensi teknologi dan kecerdasan buatan terdepan di Indonesia. Mengupas arsitektur LLM modern, cloud edge computing, cybersecurity, dan transformasi digital bersama pakar Silicon Valley dan praktisi industri nasional.',
-        bannerImg: 'https://images.unsplash.com/photo-1505373877841-8d25f7d46678?w=1600&auto=format&fit=crop&q=80',
-        videoTrailer: 'https://assets.mixkit.co/videos/preview/mixkit-hands-of-a-person-typing-on-a-laptop-keyboard-43204-large.mp4',
-        galleryImages: [
-          'https://images.unsplash.com/photo-1505373877841-8d25f7d46678?w=1200&auto=format&fit=crop&q=80',
-          'https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=1200&auto=format&fit=crop&q=80'
-        ],
-        organizerId: 'usr-org-tech',
-        organizerName: 'Indonesia Tech Fest',
-        organizerEmail: 'techfest@nusantara.id',
-        status: 'active',
-        gradient: 'linear-gradient(135deg, #6366f1, #8b5cf6, #ec4899)',
-        badgeColor: '#8b5cf6',
-        createdAt: '2026-02-01',
-        tiers: [
-          { id: 'tier-tech-1', name: 'Standard Conference Pass', price: 300000, quota: 400, sold: 280, description: 'Akses Semua Sesi Keynote & Plenary Conference (1 Hari Penuh)' },
-          { id: 'tier-tech-2', name: 'All-Access VIP + Workshop Certificate', price: 650000, quota: 150, sold: 110, description: 'Akses Fast-Track Gate, Workshop Hands-on AI, VIP Lunch, & Sertifikat Resmi' }
-        ]
-      },
-      {
-        id: 'EVT-ART0',
-        title: 'Bali Creative & Sound Wave Fest 2026',
-        category: 'Konser Musik',
-        city: 'Bali',
-        date: '2026-12-20',
-        time: '15:00 - 24:00 WITA',
-        venue: 'GWK Cultural Park, Jimbaran',
-        description: 'Perpaduan magis alunan musik tropis, festival seni patung kontemporer, dan pemandangan matahari terbenam GWK Bali yang ikonik. Nikmati malam tak terlupakan di pulau dewata.',
-        bannerImg: 'https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=1600&auto=format&fit=crop&q=80',
-        videoTrailer: 'https://assets.mixkit.co/videos/preview/mixkit-audience-at-a-music-concert-holding-lights-42537-large.mp4',
-        galleryImages: [
-          'https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=1200&auto=format&fit=crop&q=80',
-          'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=1200&auto=format&fit=crop&q=80'
-        ],
-        organizerId: 'usr-org-promotor',
-        organizerName: 'Promotor Musik Nusantara',
-        organizerEmail: 'promotor@nusantara.id',
-        status: 'active',
-        gradient: 'linear-gradient(135deg, #ea580c, #f59e0b, #ef4444)',
-        badgeColor: '#f59e0b',
-        createdAt: '2026-02-10',
-        tiers: [
-          { id: 'tier-art0-1', name: 'Sunset Pass (Early Entry)', price: 200000, quota: 300, sold: 180, description: 'Akses Masuk Sebelum Pukul 17:00 WITA' },
-          { id: 'tier-art0-2', name: 'General Admission Festival', price: 350000, quota: 600, sold: 420, description: 'Akses Masuk Festival & Galeri Seni Kontemporer' },
-          { id: 'tier-art0-3', name: 'VIP Sunset Deck + 2 Cocktails', price: 800000, quota: 100, sold: 85, description: 'Akses Fast-Track Gate, Deck Pemandangan GWK, & 2 Complimentary Cocktails' }
-        ]
+        rejectionReason: '',
+        avatarText: 'AD',
+        verified: true,
+        subscription: null,
+        createdAt: '2026-01-01'
       }
     ],
-    tickets: [
-      { id: 'TKT-001', code: 'TKT-DEMO-VALID-01', eventId: 'EVT-BAT0', eventName: 'Pesta Musik Indie Jakarta 2026', eventDate: '2026-11-28', eventTime: '16:00 - 23:00 WIB', eventVenue: 'Stadion Madya GBK, Senayan', organizerEmail: 'promotor@nusantara.id', tierId: 'tier-bat0-3', tierName: 'VIP Soundcheck Experience', price: 550000, buyerId: 'usr-peserta-budi', buyerName: 'Budi Pratama VIP', buyerEmail: 'budi@gmail.com', buyerPhone: '081234567890', isCheckedIn: false, checkedInAt: null, status: 'valid', qrToken: 'TOKEN-VALID-BAT0-VIP-001', createdAt: '2026-02-15 14:20 WIB' },
-      { id: 'TKT-002', code: 'TKT-DEMO-VALID-02', eventId: 'EVT-F6OQ', eventName: 'Nusantara Esports Championship 2026', eventDate: '2026-12-05', eventTime: '10:00 - 21:00 WIB', eventVenue: 'Sabuga ITB Convention Hall', organizerEmail: 'soundfest@nusantara.id', tierId: 'tier-f6oq-3', tierName: 'VIP Front Row Player Stage', price: 350000, buyerId: 'usr-peserta-budi', buyerName: 'Budi Pratama VIP', buyerEmail: 'budi@gmail.com', buyerPhone: '081234567890', isCheckedIn: false, checkedInAt: null, status: 'valid', qrToken: 'TOKEN-VALID-F6OQ-VIP-002', createdAt: '2026-02-16 11:10 WIB' },
-      { id: 'TKT-003', code: 'TKT-DEMO-USED-01', eventId: 'EVT-BAT0', eventName: 'Pesta Musik Indie Jakarta 2026', eventDate: '2026-11-28', eventTime: '16:00 - 23:00 WIB', eventVenue: 'Stadion Madya GBK, Senayan', organizerEmail: 'promotor@nusantara.id', tierId: 'tier-bat0-2', tierName: 'Presale Regular Gate A', price: 250000, buyerId: 'usr-peserta-siti', buyerName: 'Siti Rahma', buyerEmail: 'siti@gmail.com', buyerPhone: '081987654321', isCheckedIn: true, checkedInAt: '2026-11-04 14:15 WIB', status: 'used', qrToken: 'TOKEN-USED-BAT0-REG-003', createdAt: '2026-02-17 09:30 WIB' },
-      { id: 'TKT-004', code: 'TKT-DEMO-PENDING-01', eventId: 'EVT-TECH', eventName: 'Indonesia Tech & AI Summit 2026', eventDate: '2026-12-12', eventTime: '09:00 - 17:00 WIB', eventVenue: 'Jakarta Convention Center (JCC) Senayan', organizerEmail: 'techfest@nusantara.id', tierId: 'tier-tech-1', tierName: 'Standard Conference Pass', price: 300000, buyerId: 'usr-peserta-reza', buyerName: 'Reza Kurniawan', buyerEmail: 'reza@gmail.com', buyerPhone: '085678901234', isCheckedIn: false, checkedInAt: null, status: 'valid', qrToken: 'TOKEN-PENDING-TECH-004', createdAt: '2026-02-18 16:00 WIB' },
-      { id: 'TKT-005', code: 'TKT-DEMO-REFUND-01', eventId: 'EVT-BAT0', eventName: 'Pesta Musik Indie Jakarta 2026', eventDate: '2026-11-28', eventTime: '16:00 - 23:00 WIB', eventVenue: 'Stadion Madya GBK, Senayan', organizerEmail: 'promotor@nusantara.id', tierId: 'tier-bat0-2', tierName: 'Presale Regular Gate A', price: 250000, buyerId: 'usr-peserta-reza', buyerName: 'Reza Kurniawan', buyerEmail: 'reza@gmail.com', buyerPhone: '085678901234', isCheckedIn: false, checkedInAt: null, status: 'refunded', qrToken: 'TOKEN-REFUNDED-BAT0-005', createdAt: '2026-02-19 10:15 WIB' }
-    ],
-    refundRequests: [
-      { id: 'REF-001', ticketId: 'TKT-004', ticketCode: 'TKT-DEMO-PENDING-01', eventId: 'EVT-TECH', eventName: 'Indonesia Tech & AI Summit 2026', organizerEmail: 'techfest@nusantara.id', buyerEmail: 'reza@gmail.com', buyerName: 'Reza Kurniawan', amount: 300000, reason: 'Jadwal bentrok / berhalangan hadir', details: 'Tiba-tiba ada dinas mendadak ke luar kota di tanggal acara.', bankName: 'BCA', accountNumber: '8820192831', accountHolder: 'Reza Kurniawan', status: 'pending', organizerNote: '', createdAt: '2026-11-04 09:00 WIB', resolvedAt: null },
-      { id: 'REF-002', ticketId: 'TKT-005', ticketCode: 'TKT-DEMO-REFUND-01', eventId: 'EVT-BAT0', eventName: 'Pesta Musik Indie Jakarta 2026', organizerEmail: 'promotor@nusantara.id', buyerEmail: 'reza@gmail.com', buyerName: 'Reza Kurniawan', amount: 250000, reason: 'Kondisi darurat kesehatan', details: 'Dirawat di rumah sakit sehingga tidak bisa menghadiri konser.', bankName: 'Mandiri', accountNumber: '1310099882211', accountHolder: 'Reza Kurniawan', status: 'approved', organizerNote: 'Refund telah disetujui dan ditransfer ke rekening pemohon.', createdAt: '2026-11-03 14:00 WIB', resolvedAt: '2026-11-04 11:30 WIB' }
-    ],
-    vouchers: [
-      { code: 'VIPHEMAT10', eventId: 'EVT-BAT0', organizerEmail: 'promotor@nusantara.id', discountPercent: 10, maxDiscount: 50000, minPurchase: 100000, quota: 200, usedCount: 28, isActive: true, createdAt: '2026-02-01' },
-      { code: 'ESPORTS2026', eventId: 'EVT-F6OQ', organizerEmail: 'soundfest@nusantara.id', discountPercent: 15, maxDiscount: 75000, minPurchase: 50000, quota: 100, usedCount: 15, isActive: true, createdAt: '2026-02-05' },
-      { code: 'TECHPROMO', eventId: 'EVT-TECH', organizerEmail: 'techfest@nusantara.id', discountPercent: 20, maxDiscount: 100000, minPurchase: 200000, quota: 50, usedCount: 8, isActive: true, createdAt: '2026-02-10' }
-    ],
-    scanLogs: [
-      { id: 'SCAN-001', ticketCode: 'TKT-DEMO-USED-01', eventId: 'EVT-BAT0', scannedBy: 'promotor@nusantara.id', scannedAt: '2026-11-04 14:15 WIB', status: 'SUCCESS', method: 'camera', details: 'Check-in berhasil via Gate Scanner POS' }
-    ],
-    bookmarks: ['EVT-BAT0', 'EVT-TECH', 'EVT-F6OQ'],
-    messages: [
-      { id: 'MSG-001', eventId: 'EVT-BAT0', eventTitle: 'Pesta Musik Indie Jakarta 2026', senderEmail: 'budi@gmail.com', senderName: 'Budi Pratama VIP', senderRole: 'peserta', organizerEmail: 'promotor@nusantara.id', message: 'Halo Promotor, apakah pemilik tiket VIP Soundcheck bisa membawa kamera mirrorless untuk dokumentasi pribadi?', reply: 'Halo Kak Budi! Untuk kamera mirrorless dengan lensa kit diperbolehkan. Mohon hindari penggunaan lensa telezoom lebih dari 200mm demi kenyamanan bersama. Sampai jumpa di venue!', replyTime: '2026-11-04 10:45 WIB', createdAt: '2026-11-04 09:10 WIB' },
-      { id: 'MSG-002', eventId: 'EVT-F6OQ', eventTitle: 'Nusantara Esports Championship 2026', senderEmail: 'siti@gmail.com', senderName: 'Siti Rahma', senderRole: 'peserta', organizerEmail: 'soundfest@nusantara.id', message: 'Apakah gate masuk dibuka tepat pukul 10:00 atau ada antrean open gate lebih awal?', reply: '', replyTime: '', createdAt: '2026-11-04 13:20 WIB' }
-    ],
-    feedbacks: [
-      { id: 'FB-001', userName: 'Dimas Anggara', userEmail: 'dimas@alumni.ac.id', rating: 5, category: 'Pemesanan Tiket', comment: 'Proses pembelian tiket sangat cepat dan kode QR e-tiket langsung terbit tanpa delay! Fitur Fast-Track VIP sangat membantu.', timestamp: '2026-11-03 16:30 WIB' },
-      { id: 'FB-002', userName: 'Nadya Clarissa', userEmail: 'nadya@creative.id', rating: 5, category: 'Kasir Gate Scanner', comment: 'Scanner kamera gate bekerja kilat bahkan dalam kondisi pencahayaan redup. Sistem POS sangat andal!', timestamp: '2026-11-04 09:15 WIB' }
-    ],
+
+    // 100% KOSONG BERSIH DARI NOL (0)
+    events: [],
+    tickets: [],
+    refundRequests: [],
+    vouchers: [],
+    scanLogs: [],
+    bookmarks: [],
+    messages: [],
+    feedbacks: [],
+
     activityLogs: [
-      { id: 'ACT-001', timestamp: '2026-11-04 10:00 WIB', userName: 'Administrator Sistem (Privat)', userEmail: 'admin@private.internal', userRole: 'system', action: 'Inisialisasi Database Relasional & Seeding Data Demo EventHub Pro Berhasil', details: 'Database SQLite eventhub.db telah diisi dengan data demo lengkap siap showcase.', status: 'success' },
-      { id: 'ACT-002', timestamp: '2026-11-04 10:15 WIB', userName: 'Promotor Musik Nusantara', userEmail: 'promotor@nusantara.id', userRole: 'penyelenggara', action: 'Membuat Acara: Pesta Musik Indie Jakarta 2026', details: 'Acara baru berhasil diterbitkan dengan 4 kategori kuota tiket.', status: 'success' },
-      { id: 'ACT-003', timestamp: '2026-11-04 10:30 WIB', userName: 'Budi Pratama VIP', userEmail: 'budi@gmail.com', userRole: 'peserta', action: 'Berlangganan Paket Membership Gold VIP Pass', details: 'Paket Fast-Track Gold VIP aktif dengan hak akses tanpa antre.', status: 'success' },
-      { id: 'ACT-004', timestamp: '2026-11-04 10:45 WIB', userName: 'Budi Pratama VIP', userEmail: 'budi@gmail.com', userRole: 'peserta', action: 'Membeli E-Tiket VIP Soundcheck Experience (TKT-DEMO-VALID-01)', details: 'Transaksi pembayaran QRIS sukses, e-tiket QR aktif diterbitkan.', status: 'success' }
+      {
+        id: 'ACT-INIT',
+        timestamp: '2026-11-04 10:00 WIB',
+        userName: 'Administrator Sistem (Privat)',
+        userEmail: 'admin@private.internal',
+        userRole: 'system',
+        action: 'Sistem Diinisialisasi Bersih',
+        details: 'Platform EventHub siap digunakan mulai dari nol (0). Seluruh data event dan akun pengujian telah dibersihkan.',
+        status: 'success'
+      }
     ],
     heroConfig: {
       badgeText: 'Platform Tiket & Event Terpercaya #1 di Indonesia',
@@ -203,8 +86,8 @@
       if (raw) {
         var parsed = JSON.parse(raw);
         if (parsed && Array.isArray(parsed.events) && Array.isArray(parsed.users)) {
-          // Jika data kosong atau terdapat sisa event lama, muat data demo segar
-          if (!parsed.events.length || parsed.events.some(function(e){ return e.id === 'EVT-JZZ' || e.id === 'EVT-ESP' || e.id === 'EVT-HCK' || e.id === 'EVT-UXW'; })) {
+          // Jika terdapat sisa data demo event lama, bersihkan tuntas
+          if (parsed.events.some(function(e){ return e.id === 'EVT-BAT0' || e.id === 'EVT-F6OQ' || e.id === 'EVT-TECH' || e.id === 'EVT-ART0' || e.id === 'EVT-JZZ' || e.id === 'EVT-ESP' || e.id === 'EVT-HCK' || e.id === 'EVT-UXW'; })) {
             saveData(INITIAL_DATA);
             return JSON.parse(JSON.stringify(INITIAL_DATA));
           }

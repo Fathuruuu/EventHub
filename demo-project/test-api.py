@@ -21,42 +21,30 @@ class TestEventHubBackend(unittest.TestCase):
         database.init_db()
 
     def test_database_initialization(self):
-        """Test if database initialized and tables are reachable."""
+        """Test if database initialized cleanly with active status and users table."""
         stats = database.get_db_stats()
         self.assertEqual(stats['status'], "ONLINE & READY")
-        self.assertGreater(stats['tables']['users'], 0)
-        self.assertGreater(stats['tables']['events'], 0)
-        self.assertGreater(stats['tables']['event_tiers'], 0)
+        self.assertGreaterEqual(stats['tables']['users'], 1)
 
-    def test_demo_data_integrity(self):
-        """Test if seeded demo data contains required demo accounts and events."""
+    def test_clean_state_integrity(self):
+        """Test that all demo accounts, demo events, and demo tickets are purged."""
         db = database.export_database()
-        
-        # Check users
-        emails = [u['email'] for u in db['users']]
-        self.assertIn('admin@eventhub.id', emails)
-        self.assertIn('promotor@nusantara.id', emails)
-        self.assertIn('budi@gmail.com', emails)
-        
-        # Check VIP subscription for Budi
-        budi = next(u for u in db['users'] if u['email'] == 'budi@gmail.com')
-        self.assertIsNotNone(budi['subscription'])
-        self.assertEqual(budi['subscription']['planId'], 'gold')
+        self.assertTrue(any(u['role'] == 'superadmin' for u in db['users']))
 
-        # Check events
-        titles = [e['title'] for e in db['events']]
-        self.assertTrue(any('Pesta Musik Indie' in t for t in titles))
-        self.assertTrue(any('Esports' in t for t in titles))
+        # Ensure demo events are completely absent
+        event_ids = [e['id'] for e in db['events']]
+        for d in ['EVT-BAT0', 'EVT-F6OQ', 'EVT-TECH', 'EVT-ART0']:
+            self.assertNotIn(d, event_ids)
 
-        # Check tickets
+        # Ensure demo users are completely absent
+        user_emails = [u['email'] for u in db['users']]
+        for d in ['promotor@nusantara.id', 'soundfest@nusantara.id', 'techfest@nusantara.id', 'budi@gmail.com', 'siti@gmail.com', 'reza@gmail.com']:
+            self.assertNotIn(d, user_emails)
+
+        # Ensure demo tickets are completely absent
         ticket_codes = [t['code'] for t in db['tickets']]
-        self.assertIn('TKT-DEMO-VALID-01', ticket_codes)
-        self.assertIn('TKT-DEMO-USED-01', ticket_codes)
-
-        # Check vouchers
-        voucher_codes = [v['code'] for v in db['vouchers']]
-        self.assertIn('VIPHEMAT10', voucher_codes)
-
+        for d in ['TKT-DEMO-VALID-01', 'TKT-DEMO-VALID-02', 'TKT-DEMO-USED-01', 'TKT-DEMO-PENDING-01', 'TKT-DEMO-REFUND-01']:
+            self.assertNotIn(d, ticket_codes)
     def test_waf_sqli_detection(self):
         """Test if WAF detects SQL injection attempts."""
         is_blocked, status, reason = waf.inspect_request(

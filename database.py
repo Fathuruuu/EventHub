@@ -144,13 +144,8 @@ def init_db():
             'success'
         ))
 
-    # Check if events table is empty; if so, populate rich demo dataset
-    cursor.execute("SELECT COUNT(*) FROM events")
-    has_events = cursor.fetchone()[0] > 0
     conn.commit()
     conn.close()
-    if not has_events:
-        seed_demo_data(force=False)
     print(f"[SQLITE DB] ✅ Database initialized successfully: {DB_FILE}", flush=True)
     return
 

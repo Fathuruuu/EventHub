@@ -34,13 +34,8 @@ EventHub Pro dilengkapi sistem otentikasi role-based access (RBAC) dengan kode v
 
 ### Cara Masuk (Login):
 1. Klik tombol **Masuk / Daftar** di bar navigasi atas.
-2. Masukkan email dan kata sandi Anda, atau gunakan fitur **⚡ Akun Demo Cepat (1-Klik)** untuk uji coba instan:
-   - 👑 **Super Admin:** `admin@eventhub.id` / `admin123`
-   - 🎪 **Penyelenggara Acara:** `promotor@nusantara.id` / `promotor123`
-   - ⚡ **Peserta VIP Gold:** `budi@gmail.com` / `peserta123`
-   - 👤 **Peserta Reguler:** `siti@gmail.com` / `peserta123`
+2. Masukkan alamat email dan kata sandi akun Anda yang telah terdaftar, atau gunakan tombol role cepat untuk pengujian lokal.
 3. Klik tombol **Masuk ke EventHub**.
-
 ### Cara Daftar Akun Baru:
 1. Klik tautan **Daftar Akun Baru** pada modal masuk.
 2. Pilih tipe akun:
@@ -133,7 +128,7 @@ EventHub Pro dilengkapi sistem otentikasi role-based access (RBAC) dengan kode v
 ## 4. Panduan Super Administrator
 
 ### Monitoring Keamanan Firewall WAF Real-Time
-1. Masuk menggunakan akun Super Admin: `admin@eventhub.id` / `admin123`.
+1. Masuk menggunakan sesi akun dengan hak akses Super Administrator.
 2. Buka menu **Platform Admin** → Tab **Firewall & Keamanan (WAF)**.
 3. Pantau statistik:
    - Total request yang diinspeksi.

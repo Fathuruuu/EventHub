@@ -21,8 +21,7 @@
   <a href="docs/MANUAL.md">Panduan Pengguna</a> ·
   <a href="docs/ARCHITECTURE.md">Arsitektur Sistem</a> ·
   <a href="demo-project/README.md">Paket Demo</a> ·
-  <a href="#cara-menjalankan">Instalasi</a> ·
-  <a href="#kredensial-akun-demo">Akun Demo</a>
+  <a href="#cara-menjalankan">Instalasi</a>
 </p>
 
 ---
@@ -153,21 +152,6 @@ npx serve -l 3000 .
 npm run android:init
 npm run android:open
 ```
-
----
-
-## Kredensial Akun Demo
-
-Untuk mempermudah peninjauan dan evaluasi, platform telah dilengkapi akun siap pakai yang dapat dimasukkan secara instan melalui tombol **⚡ Akun Demo Cepat (1-Klik)** pada modal masuk:
-
-| Peran (Role) | Alamat Email | Kata Sandi | Akses Utama |
-|---|---|---|---|
-| 👑 **Super Admin** | `admin@eventhub.id` | `admin123` | Platform Control Desk, Firewall WAF, CMS Hero, Approval EO |
-| 🎪 **Penyelenggara 1** | `promotor@nusantara.id` | `promotor123` | Buat Acara, POS Kasir Gate Scanner, Kupon Promo, Kelola Refund |
-| 🎪 **Penyelenggara 2** | `soundfest@nusantara.id` | `soundfest123` | Promotor Turnamen Esports Bandung & POS Kasir Gate |
-| ⚡ **Peserta VIP Gold** | `budi@gmail.com` | `peserta123` | Fast-Track Gate VIP, E-Tiket Aktif, Diskon Member 10% |
-| 👤 **Peserta Reguler** | `siti@gmail.com` | `peserta123` | Pembelian Tiket Normal, E-Tiket Check-in, Favorit Acara |
-| 👤 **Peserta Refund** | `reza@gmail.com` | `peserta123` | Membership Silver, Pengajuan Refund Dana Tiket |
 
 ---
 

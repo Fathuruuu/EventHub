@@ -146,12 +146,14 @@ header.app-header {
 
 .header-container {
   max-width: 1720px;
+  width: 100%;
   margin: 0 auto;
-  padding: 14px 36px;
+  padding: 10px 20px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 16px;
+  gap: 10px;
+  box-sizing: border-box;
 }
 
 .brand-logo {
@@ -266,14 +268,15 @@ nav.main-nav::-webkit-scrollbar {
 .header-actions {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 8px;
+  flex-shrink: 0;
 }
 
 .user-profile-btn {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 6px 14px 6px 6px;
+  gap: 8px;
+  padding: 4px 10px 4px 4px;
   background: var(--bg-surface-elevated);
   border: 1px solid var(--border-glass);
   border-radius: var(--radius-full);
@@ -282,6 +285,8 @@ nav.main-nav::-webkit-scrollbar {
   transition: all var(--transition-fast);
   position: relative;
   z-index: 10;
+  flex-shrink: 0;
+  box-sizing: border-box;
 }
 
 .user-profile-btn * {
@@ -313,8 +318,12 @@ nav.main-nav::-webkit-scrollbar {
 }
 
 .user-info-name {
-  font-size: 0.85rem;
+  font-size: 0.82rem;
   font-weight: 700;
+  max-width: 82px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .user-role-tag {
@@ -1682,4 +1691,26 @@ main#app-root {
 @keyframes slideUpFade {
   from { opacity: 0; transform: translateY(20px); }
   to { opacity: 1; transform: translateY(0); }
+}
+
+/* Sembunyikan tombol pasang app & banner jika aplikasi sudah terinstall / standalone mode / Capacitor */
+@media (display-mode: standalone), (display-mode: window-controls-overlay) {
+  .btn-pwa-install,
+  #header-pwa-install-btn,
+  #pwa-install-banner,
+  .pwa-install-banner {
+    display: none !important;
+  }
+}
+
+@media (max-width: 1240px) {
+  .hide-on-compact {
+    display: none !important;
+  }
+  .header-actions {
+    gap: 6px;
+  }
+  .user-profile-btn {
+    padding: 3px 6px 3px 3px;
+  }
 }

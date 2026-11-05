@@ -2428,11 +2428,30 @@
       reader.readAsDataURL(file);
     },
 
+    isAppInstalled: function() {
+      if (typeof window !== 'undefined') {
+        if (window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform()) return true;
+        if (window.Capacitor && (window.Capacitor.platform === 'android' || window.Capacitor.platform === 'ios')) return true;
+        if (window.matchMedia('(display-mode: standalone)').matches) return true;
+        if (window.matchMedia('(display-mode: window-controls-overlay)').matches) return true;
+        if (window.navigator.standalone === true) return true;
+      }
+      if (typeof document !== 'undefined' && document.referrer && document.referrer.includes('android-app://')) {
+        return true;
+      }
+      try {
+        if (localStorage.getItem('pwa_app_installed') === '1' || localStorage.getItem('eventhub_app_downloaded') === '1') {
+          return true;
+        }
+      } catch (e) {}
+      return false;
+    },
+
     promptInstallApp: function() {
       if (Sound) Sound.playClick();
 
-      // Periksa apakah aplikasi sudah berjalan dalam mode standalone (terpasang)
-      if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true) {
+      // Periksa apakah aplikasi sudah berjalan dalam mode standalone / terpasang
+      if (this.isAppInstalled()) {
         Router.showToast('✓ Aplikasi EventHub sudah terpasang dan aktif di perangkat Anda!', 'success');
         return;
       }
@@ -2451,6 +2470,11 @@
           if (choiceResult.outcome === 'accepted') {
             Router.showToast('Pemasangan aplikasi sedang diproses...', 'info');
             EventHub.dismissInstallBanner(true);
+            try {
+              localStorage.setItem('pwa_app_installed', '1');
+              localStorage.setItem('eventhub_app_downloaded', '1');
+            } catch (e) {}
+            EventHub.renderApp();
           }
           window._eventhubDeferredPrompt = null;
         });
@@ -2471,7 +2495,10 @@
       }
       try {
         sessionStorage.setItem('pwa_banner_dismissed', '1');
-        if (permanent) localStorage.setItem('pwa_app_installed', '1');
+        if (permanent) {
+          localStorage.setItem('pwa_app_installed', '1');
+          localStorage.setItem('eventhub_app_downloaded', '1');
+        }
       } catch (e) {}
     },
   };

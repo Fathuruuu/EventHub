@@ -265,12 +265,14 @@
     html.push(
           '</nav>',
           '<div class="header-actions">',
-            '<button type="button" class="btn-pwa-install" id="header-pwa-install-btn" onclick="EventHub.promptInstallApp()" title="Pasang Aplikasi EventHub di Perangkat">',
-              '<span>📲</span> <span>Pasang App</span>',
-            '</button>',
+            (!EventHub.isAppInstalled() ? (
+              '<button type="button" class="btn-pwa-install" id="header-pwa-install-btn" onclick="EventHub.promptInstallApp()" title="Pasang Aplikasi EventHub di Perangkat">' +
+                '<span>📲</span> <span class="hide-on-compact">Pasang App</span>' +
+              '</button>'
+            ) : ''),
             (window.EventI18n ? window.EventI18n.renderLanguageSwitcher() : ''),
-            '<button class="btn-secondary" style="padding:6px 14px; font-size:0.8rem; border-color:rgba(255,255,255,0.15)" onclick="EventHub.openFeedbackModal()">',
-              '⭐ Feedback',
+            '<button class="btn-secondary" style="padding:6px 12px; font-size:0.8rem; border-color:rgba(255,255,255,0.15); display:inline-flex; align-items:center; gap:5px" onclick="EventHub.openFeedbackModal()" title="Kirim Feedback">',
+              '<span>⭐</span> <span class="hide-on-compact">Feedback</span>',
             '</button>'
           );
     if (user) {
@@ -282,8 +284,8 @@
             '<span class="user-role-tag role-' + user.role + '">' + user.role + '</span>',
           '</div>',
         '</button>',
-        '<button class="btn-secondary" style="padding:6px 12px; font-size:0.8rem; color:#fb7185; border-color:rgba(244,63,94,0.3)" onclick="EventHub.logout()" title="Keluar dari Akun">',
-          '🚪 ' + (window.EventI18n ? window.EventI18n.t('nav_logout', 'Keluar') : 'Keluar'),
+        '<button class="btn-secondary" style="padding:6px 12px; font-size:0.8rem; color:#fb7185; border-color:rgba(244,63,94,0.3); display:inline-flex; align-items:center; gap:5px" onclick="EventHub.logout()" title="Keluar dari Akun">',
+          '<span>🚪</span> <span class="hide-on-compact">' + (window.EventI18n ? window.EventI18n.t('nav_logout', 'Keluar') : 'Keluar') + '</span>',
         '</button>'
       );
     } else {

@@ -2550,6 +2550,11 @@
   function initApp() {
     renderApp();
     Router.triggerPreloader('Menyiapkan Sistem Tiket Event...', 850);
+    try {
+      if (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.SplashScreen) {
+        window.Capacitor.Plugins.SplashScreen.hide();
+      }
+    } catch (e) {}
   }
 
   if (document.readyState === 'loading') {

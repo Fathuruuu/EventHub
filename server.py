@@ -419,9 +419,19 @@ class EventHubRequestHandler(http.server.SimpleHTTPRequestHandler):
 def run_server():
     os.chdir(BASE_DIR)
     database.init_db()
-    server_address = ("127.0.0.1", PORT)
+    server_address = ("0.0.0.0", PORT)
     httpd = http.server.ThreadingHTTPServer(server_address, EventHubRequestHandler)
+    import socket
+    local_ip = "127.0.0.1"
+    try:
+        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        s.connect(("8.8.8.8", 80))
+        local_ip = s.getsockname()[0]
+        s.close()
+    except Exception:
+        pass
     print(f"[EVENTHUB SERVER] 🚀 Server running at http://localhost:{PORT}", flush=True)
+    print(f"[EVENTHUB SERVER] 📱 Akses dari HP iPhone / Android (Wi-Fi): http://{local_ip}:{PORT}", flush=True)
     print(f"[EVENTHUB SERVER] ✉️ Gmail OTP endpoint active at /api/send-otp", flush=True)
     try:
         httpd.serve_forever()

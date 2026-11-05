@@ -83,13 +83,18 @@ body {
   pointer-events: none;
   z-index: 0;
   overflow: hidden;
+  -webkit-transform: translate3d(0, 0, 0);
+  transform: translate3d(0, 0, 0);
 }
 
 .ambient-orb {
   position: absolute;
   border-radius: 50%;
-  filter: blur(100px);
+  -webkit-filter: blur(60px);
+  filter: blur(60px);
   opacity: 0.25;
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
   animation: floatOrb 20s infinite alternate ease-in-out;
 }
 
@@ -361,6 +366,7 @@ main#app-root {
   opacity: 0;
   visibility: hidden;
   pointer-events: none;
+  display: none !important;
 }
 
 .preloader-content {

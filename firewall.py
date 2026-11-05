@@ -256,10 +256,14 @@ class WebApplicationFirewall:
             "Referrer-Policy": "strict-origin-when-cross-origin",
             "Permissions-Policy": "camera=*, microphone=(), geolocation=()",
             "Content-Security-Policy": (
-                "default-src 'self' 'unsafe-inline' 'unsafe-eval' https://fonts.googleapis.com https://fonts.gstatic.com https://images.unsplash.com https://www.youtube.com https://cdnjs.cloudflare.com; "
-                "frame-src https://www.youtube.com; "
-                "img-src 'self' data: https:; "
-                "connect-src 'self' http://localhost:3000 http://127.0.0.1:3000;"
+                "default-src 'self' 'unsafe-inline' 'unsafe-eval' https: http: data: blob:; "
+                "script-src 'self' 'unsafe-inline' 'unsafe-eval' https: http:; "
+                "style-src 'self' 'unsafe-inline' https: http:; "
+                "img-src 'self' data: blob: https: http:; "
+                "media-src 'self' data: blob: https: http:; "
+                "frame-src 'self' https: http:; "
+                "font-src 'self' data: https: http:; "
+                "connect-src 'self' * ws: wss:;"
             )
         }
 

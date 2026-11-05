@@ -236,9 +236,14 @@
         offscreenCtx = offscreenCanvas.getContext('2d', { willReadFrequently: true });
       }
 
-      var hasBarcodeDetector = typeof window.BarcodeDetector !== 'undefined';
-      var barcodeDetector = hasBarcodeDetector ? new window.BarcodeDetector({ formats: ['qr_code'] }) : null;
-
+      var barcodeDetector = null;
+      if (typeof window.BarcodeDetector !== 'undefined') {
+        try {
+          barcodeDetector = new window.BarcodeDetector({ formats: ['qr_code'] });
+        } catch (e) {
+          barcodeDetector = null;
+        }
+      }
       async function tick() {
         if (!isScanning) return;
 

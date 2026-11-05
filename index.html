@@ -20,6 +20,18 @@
   <link rel="apple-touch-icon" sizes="180x180" href="assets/apple-touch-icon.png">
   <link rel="icon" type="image/png" sizes="192x192" href="assets/icon-192.png">
   <link rel="icon" type="image/png" sizes="512x512" href="assets/icon-512.png">
+  <script>
+    // iOS Safari / WebKit Error Trap & Fast Dismiss
+    window.addEventListener('error', function(e) {
+      console.warn('[EventHub Early Trap]', e.message || e);
+      var pl = document.getElementById('app-preloader');
+      if (pl) { pl.classList.add('fade-out'); pl.style.display = 'none'; }
+    });
+    setTimeout(function() {
+      var pl = document.getElementById('app-preloader');
+      if (pl) { pl.classList.add('fade-out'); pl.style.display = 'none'; }
+    }, 1200);
+  </script>
   <!-- Google Fonts: Plus Jakarta Sans & JetBrains Mono -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>

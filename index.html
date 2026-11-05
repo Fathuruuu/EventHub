@@ -49,7 +49,7 @@
 </head>
 <body>
   <!-- App Splash & Transition Preloader Screen -->
-  <div id="app-preloader" class="app-preloader fade-out" style="display:none">
+  <div id="app-preloader" class="app-preloader">
     <div class="preloader-content">
       <div class="preloader-logo-ring">
         <div class="preloader-ring-spin"></div>
@@ -58,14 +58,52 @@
         </div>
       </div>
       <div class="preloader-brand">
-        Event<span class="highlight">Hub</span>
+        Event<span class="highlight">Hub</span> <span class="badge">PRO v2.0</span>
       </div>
-      <p id="preloader-status" class="preloader-text">Memuat sistem tiket event...</p>
+      <p id="preloader-status" class="preloader-text">Menyiapkan sistem tiket event...</p>
       <div class="preloader-progress-track">
         <div id="preloader-progress-bar" class="preloader-progress-fill"></div>
       </div>
+      <div class="preloader-dots">
+        <span></span><span></span><span></span>
+      </div>
     </div>
   </div>
+  <script>
+    (function() {
+      var pBar = document.getElementById('preloader-progress-bar');
+      var pText = document.getElementById('preloader-status');
+      var pl = document.getElementById('app-preloader');
+      var pct = 15;
+      if (pBar) pBar.style.width = '15%';
+
+      var timer = setInterval(function() {
+        if (pct < 85) {
+          pct += Math.floor(Math.random() * 15) + 12;
+          if (pct > 85) pct = 85;
+          if (pBar) pBar.style.width = pct + '%';
+          if (pct > 45 && pText) pText.textContent = 'Menyiapkan katalog acara...';
+        }
+      }, 100);
+
+      window.dismissLoadingPage = function() {
+        clearInterval(timer);
+        if (pBar) pBar.style.width = '100%';
+        if (pText) pText.textContent = 'Sistem siap!';
+        setTimeout(function() {
+          if (pl) {
+            pl.classList.add('fade-out');
+            setTimeout(function() { pl.style.display = 'none'; }, 500);
+          }
+        }, 220);
+      };
+
+      // Failsafe: maksimal 1.4 detik jika offline / lambat
+      setTimeout(function() {
+        if (window.dismissLoadingPage) window.dismissLoadingPage();
+      }, 1400);
+    })();
+  </script>
 
   <!-- Ambient Moving Glowing Background -->
   <div class="bg-ambient" aria-hidden="true">

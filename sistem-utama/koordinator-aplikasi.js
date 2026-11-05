@@ -2554,6 +2554,12 @@
         window.Capacitor.Plugins.SplashScreen.hide();
       }
     } catch (e) {}
+
+    if (typeof window.dismissLoadingPage === 'function') {
+      setTimeout(function() {
+        window.dismissLoadingPage();
+      }, 250);
+    }
   }
 
   if (document.readyState === 'loading') {

@@ -247,7 +247,7 @@
     if (isPenyelenggara) {
       html.push(
         '<button class="nav-link ' + (App.currentRoute === 'organizer' ? 'active' : '') + '" onclick="EventHub.go(\'organizer\')">',
-          Icons.scan, ' Panel Penyelenggara',
+          Icons.scan, ' Penyelenggara',
           pendingRefundCount ? '<span class="nav-badge" style="background:#f59e0b">' + pendingRefundCount + '</span>' : '',
         '</button>'
       );
@@ -257,7 +257,7 @@
     if (isSuperAdmin) {
       html.push(
         '<button class="nav-link ' + (App.currentRoute === 'admin' ? 'active' : '') + '" onclick="EventHub.go(\'admin\')">',
-          'Platform Admin',
+          '<span>🛡️</span> Admin',
         '</button>'
       );
     }

@@ -93,10 +93,14 @@
       }, 30);
     }
 
+    preloader.style.display = 'flex';
     preloader.classList.remove('fade-out');
 
     setTimeout(function() {
       preloader.classList.add('fade-out');
+      setTimeout(function() {
+        preloader.style.display = 'none';
+      }, 450);
       if (onComplete) onComplete();
     }, duration);
   }

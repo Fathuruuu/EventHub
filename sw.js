@@ -4,7 +4,7 @@
  * Android, iOS, Windows, macOS, Linux, and ChromeOS
  */
 
-const CACHE_NAME = 'eventhub-pwa-v6.1';
+const CACHE_NAME = 'eventhub-pwa-v8.0';
 
 const PRECACHE_ASSETS = [
   './',
@@ -15,36 +15,36 @@ const PRECACHE_ASSETS = [
   './assets/icon-512.png',
   './assets/apple-touch-icon.png',
   './assets/favicon.png',
-  './sistem-utama/tema-desain.css?v=5.0',
-  './sistem-utama/tata-letak-pos.css?v=5.0',
-  './sistem-utama/moneyflow.css?v=5.0',
-  './otentikasi-akun/auth.css?v=5.0',
-  './sistem-peserta/peserta.css?v=5.0',
-  './sistem-pembayaran/pembayaran.css?v=5.0',
-  './panel-penyelenggara/kasir-organizer.css?v=5.0',
-  './panel-admin/dashboard-admin.css?v=5.0',
-  './sistem-utama/database.js?v=6.0',
-  './sistem-utama/efek-suara.js?v=5.0',
-  './sistem-utama/efek-selebrasi.js?v=5.0',
-  './sistem-utama/generator-qr.js?v=5.0',
-  './scanner-kamera/jsqr-engine.js?v=5.0',
-  './scanner-kamera/camera-scanner.js?v=5.0',
-  './sistem-utama/i18n-bahasa.js?v=5.3',
-  './sistem-utama/navigasi-router.js?v=5.3',
-  './sistem-utama/moneyflow.js?v=5.0',
-  './otentikasi-akun/auth.js?v=6.0',
-  './sistem-peserta/peserta.js?v=6.0',
-  './sistem-peserta/favorit-peserta.js?v=6.0',
-  './sistem-peserta/pesan-peserta.js?v=6.0',
-  './sistem-peserta/fast-track.js?v=6.0',
-  './sistem-pembayaran/pembayaran.js?v=6.0',
-  './panel-penyelenggara/kasir-organizer.js?v=6.0',
-  './panel-penyelenggara/pesan-organizer.js?v=6.0',
-  './panel-admin/dashboard-admin.js?v=6.0',
-  './panel-admin/approval-penyelenggara.js?v=6.0',
-  './panel-admin/pantau-aktivitas.js?v=6.0',
-  './panel-admin/audit-feedback.js?v=6.0',
-  './sistem-utama/koordinator-aplikasi.js?v=6.0'
+  './sistem-utama/tema-desain.css?v=8.0',
+  './sistem-utama/tata-letak-pos.css?v=8.0',
+  './sistem-utama/moneyflow.css?v=8.0',
+  './otentikasi-akun/auth.css?v=8.0',
+  './sistem-peserta/peserta.css?v=8.0',
+  './sistem-pembayaran/pembayaran.css?v=8.0',
+  './panel-penyelenggara/kasir-organizer.css?v=8.0',
+  './panel-admin/dashboard-admin.css?v=8.0',
+  './sistem-utama/database.js?v=8.0',
+  './sistem-utama/efek-suara.js?v=8.0',
+  './sistem-utama/efek-selebrasi.js?v=8.0',
+  './sistem-utama/generator-qr.js?v=8.0',
+  './scanner-kamera/jsqr-engine.js?v=8.0',
+  './scanner-kamera/camera-scanner.js?v=8.0',
+  './sistem-utama/i18n-bahasa.js?v=8.0',
+  './sistem-utama/navigasi-router.js?v=8.0',
+  './sistem-utama/moneyflow.js?v=8.0',
+  './otentikasi-akun/auth.js?v=8.0',
+  './sistem-peserta/peserta.js?v=8.0',
+  './sistem-peserta/favorit-peserta.js?v=8.0',
+  './sistem-peserta/pesan-peserta.js?v=8.0',
+  './sistem-peserta/fast-track.js?v=8.0',
+  './sistem-pembayaran/pembayaran.js?v=8.0',
+  './panel-penyelenggara/kasir-organizer.js?v=8.0',
+  './panel-penyelenggara/pesan-organizer.js?v=8.0',
+  './panel-admin/dashboard-admin.js?v=8.0',
+  './panel-admin/approval-penyelenggara.js?v=8.0',
+  './panel-admin/pantau-aktivitas.js?v=8.0',
+  './panel-admin/audit-feedback.js?v=8.0',
+  './sistem-utama/koordinator-aplikasi.js?v=8.0'
 ];
 
 self.addEventListener('install', (e) => {
@@ -64,7 +64,7 @@ self.addEventListener('activate', (e) => {
       return Promise.all(
         keys.map((k) => {
           if (k !== CACHE_NAME) {
-            console.log('[PWA SW] Removing outdated cache:', k);
+            console.log('[PWA SW] Clearing outdated cache:', k);
             return caches.delete(k);
           }
         })
@@ -100,20 +100,16 @@ self.addEventListener('fetch', (e) => {
     return;
   }
 
-  // Static Assets (CSS, JS, Fonts, Images): Stale-While-Revalidate
+  // Network-First for all assets: always fetch fresh from network, fallback to cache when offline
   e.respondWith(
-    caches.match(e.request).then((cachedRes) => {
-      const fetchPromise = fetch(e.request)
-        .then((networkRes) => {
-          if (networkRes && networkRes.status === 200) {
-            const resClone = networkRes.clone();
-            caches.open(CACHE_NAME).then((cache) => cache.put(e.request, resClone));
-          }
-          return networkRes;
-        })
-        .catch(() => cachedRes);
-
-      return cachedRes || fetchPromise;
-    })
+    fetch(e.request)
+      .then((networkRes) => {
+        if (networkRes && networkRes.status === 200) {
+          const resClone = networkRes.clone();
+          caches.open(CACHE_NAME).then((cache) => cache.put(e.request, resClone));
+        }
+        return networkRes;
+      })
+      .catch(() => caches.match(e.request) || (e.request.mode === 'navigate' ? caches.match('./index.html') : null))
   );
 });

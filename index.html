@@ -38,18 +38,18 @@
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
   <!-- Stylesheet Modular Desain & Layout -->
-  <link rel="stylesheet" href="sistem-utama/tema-desain.css?v=5.0">
-  <link rel="stylesheet" href="sistem-utama/tata-letak-pos.css?v=5.0">
-  <link rel="stylesheet" href="sistem-utama/moneyflow.css?v=5.0">
-  <link rel="stylesheet" href="otentikasi-akun/auth.css?v=5.0">
-  <link rel="stylesheet" href="sistem-peserta/peserta.css?v=5.0">
-  <link rel="stylesheet" href="sistem-pembayaran/pembayaran.css?v=5.0">
-  <link rel="stylesheet" href="panel-penyelenggara/kasir-organizer.css?v=5.0">
-  <link rel="stylesheet" href="panel-admin/dashboard-admin.css?v=5.0">
+  <link rel="stylesheet" href="sistem-utama/tema-desain.css?v=8.0">
+  <link rel="stylesheet" href="sistem-utama/tata-letak-pos.css?v=8.0">
+  <link rel="stylesheet" href="sistem-utama/moneyflow.css?v=8.0">
+  <link rel="stylesheet" href="otentikasi-akun/auth.css?v=8.0">
+  <link rel="stylesheet" href="sistem-peserta/peserta.css?v=8.0">
+  <link rel="stylesheet" href="sistem-pembayaran/pembayaran.css?v=8.0">
+  <link rel="stylesheet" href="panel-penyelenggara/kasir-organizer.css?v=8.0">
+  <link rel="stylesheet" href="panel-admin/dashboard-admin.css?v=8.0">
 </head>
 <body>
   <!-- App Splash & Transition Preloader Screen -->
-  <div id="app-preloader" class="app-preloader">
+  <div id="app-preloader" class="app-preloader fade-out" style="display:none">
     <div class="preloader-content">
       <div class="preloader-logo-ring">
         <div class="preloader-ring-spin"></div>
@@ -109,45 +109,40 @@
   <!-- Toast Notification Stack -->
   <div id="toast-container"></div>
   <!-- Sistem Utama & Utilitas Core -->
-  <script src="sistem-utama/database.js?v=5.0"></script>
-  <script src="sistem-utama/efek-suara.js?v=5.0"></script>
-  <script src="sistem-utama/efek-selebrasi.js?v=5.0"></script>
-  <script src="sistem-utama/generator-qr.js?v=5.0"></script>
-  <script src="scanner-kamera/jsqr-engine.js?v=5.0"></script>
-  <script src="scanner-kamera/camera-scanner.js?v=5.0"></script>
-  <script src="sistem-utama/i18n-bahasa.js?v=5.3"></script>
-  <script src="sistem-utama/navigasi-router.js?v=5.3"></script>
-  <script src="sistem-utama/moneyflow.js?v=5.0"></script>
+  <script src="sistem-utama/database.js?v=8.0"></script>
+  <script src="sistem-utama/efek-suara.js?v=8.0"></script>
+  <script src="sistem-utama/efek-selebrasi.js?v=8.0"></script>
+  <script src="sistem-utama/generator-qr.js?v=8.0"></script>
+  <script src="scanner-kamera/jsqr-engine.js?v=8.0"></script>
+  <script src="scanner-kamera/camera-scanner.js?v=8.0"></script>
+  <script src="sistem-utama/i18n-bahasa.js?v=8.0"></script>
+  <script src="sistem-utama/navigasi-router.js?v=8.0"></script>
+  <script src="sistem-utama/moneyflow.js?v=8.0"></script>
 
   <!-- Modul Fitur Terpisah (Modular & Mudah Dipahami) -->
-  <script src="otentikasi-akun/auth.js?v=6.0"></script>
-  <script src="sistem-peserta/peserta.js?v=6.0"></script>
-  <script src="sistem-peserta/favorit-peserta.js?v=6.0"></script>
-  <script src="sistem-peserta/pesan-peserta.js?v=6.0"></script>
-  <script src="sistem-peserta/fast-track.js?v=6.0"></script>
-  <script src="sistem-pembayaran/pembayaran.js?v=6.0"></script>
-  <script src="panel-penyelenggara/kasir-organizer.js?v=6.0"></script>
-  <script src="panel-penyelenggara/pesan-organizer.js?v=6.0"></script>
-  <script src="panel-admin/dashboard-admin.js?v=6.0"></script>
-  <script src="panel-admin/approval-penyelenggara.js?v=6.0"></script>
-  <script src="panel-admin/pantau-aktivitas.js?v=6.0"></script>
-  <script src="panel-admin/audit-feedback.js?v=6.0"></script>
+  <script src="otentikasi-akun/auth.js?v=8.0"></script>
+  <script src="sistem-peserta/peserta.js?v=8.0"></script>
+  <script src="sistem-peserta/favorit-peserta.js?v=8.0"></script>
+  <script src="sistem-peserta/pesan-peserta.js?v=8.0"></script>
+  <script src="sistem-peserta/fast-track.js?v=8.0"></script>
+  <script src="sistem-pembayaran/pembayaran.js?v=8.0"></script>
+  <script src="panel-penyelenggara/kasir-organizer.js?v=8.0"></script>
+  <script src="panel-penyelenggara/pesan-organizer.js?v=8.0"></script>
+  <script src="panel-admin/dashboard-admin.js?v=8.0"></script>
+  <script src="panel-admin/approval-penyelenggara.js?v=8.0"></script>
+  <script src="panel-admin/pantau-aktivitas.js?v=8.0"></script>
+  <script src="panel-admin/audit-feedback.js?v=8.0"></script>
   <!-- Koordinator Aplikasi Utama -->
-  <script src="sistem-utama/koordinator-aplikasi.js?v=6.0"></script>
-  <script>
-    // Safety fallback: pastikan preloader selalu menghilang maksimal dalam 2 detik
-    setTimeout(function() {
-      var pl = document.getElementById('app-preloader');
-      if (pl && !pl.classList.contains('fade-out')) {
-        pl.classList.add('fade-out');
-      }
-    }, 1800);
-  </script>
-  <!-- PWA Service Worker Registration -->
+  <script src="sistem-utama/koordinator-aplikasi.js?v=8.0"></script>
+  <!-- PWA Service Worker Registration & Auto-Update -->
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', function() {
-        navigator.serviceWorker.register('./sw.js?v=6.1').catch(function(e) {});
+        navigator.serviceWorker.register('./sw.js?v=8.0')
+          .then(function(reg) {
+            reg.update().catch(function() {});
+          })
+          .catch(function(e) {});
       });
     }
   </script>

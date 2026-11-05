@@ -1,9 +1,12 @@
 /**
- * EventHub - Service Worker for PWA (Android & iOS)
- * Mendukung instalasi aplikasi native, offline fallback & caching cepat
+ * EventHub Pro - Progressive Web App Service Worker (v6.0)
+ * Multi-Device Offline Engine, Standalone Caching, & Background Sync for:
+ * Android, iOS, Windows, macOS, Linux, and ChromeOS
  */
-const CACHE_NAME = 'eventhub-pwa-v5';
-const ASSETS_TO_CACHE = [
+
+const CACHE_NAME = 'eventhub-pwa-v6.1';
+
+const PRECACHE_ASSETS = [
   './',
   './index.html',
   './manifest.json',
@@ -11,29 +14,44 @@ const ASSETS_TO_CACHE = [
   './assets/icon-192.png',
   './assets/icon-512.png',
   './assets/apple-touch-icon.png',
-  './sistem-utama/tema-desain.css',
-  './sistem-utama/tata-letak-pos.css',
-  './sistem-utama/database.js',
-  './sistem-utama/efek-suara.js',
-  './sistem-utama/efek-selebrasi.js',
-  './sistem-utama/generator-qr.js',
-  './scanner-kamera/jsqr-engine.js',
-  './scanner-kamera/camera-scanner.js',
-  './sistem-utama/navigasi-router.js',
-  './otentikasi-akun/auth.js',
-  './sistem-peserta/peserta.js',
-  './sistem-peserta/fast-track.js',
-  './sistem-pembayaran/pembayaran.js',
-  './panel-penyelenggara/kasir-organizer.js',
-  './panel-admin/dashboard-admin.js',
-  './sistem-utama/koordinator-aplikasi.js'
+  './assets/favicon.png',
+  './sistem-utama/tema-desain.css?v=5.0',
+  './sistem-utama/tata-letak-pos.css?v=5.0',
+  './sistem-utama/moneyflow.css?v=5.0',
+  './otentikasi-akun/auth.css?v=5.0',
+  './sistem-peserta/peserta.css?v=5.0',
+  './sistem-pembayaran/pembayaran.css?v=5.0',
+  './panel-penyelenggara/kasir-organizer.css?v=5.0',
+  './panel-admin/dashboard-admin.css?v=5.0',
+  './sistem-utama/database.js?v=6.0',
+  './sistem-utama/efek-suara.js?v=5.0',
+  './sistem-utama/efek-selebrasi.js?v=5.0',
+  './sistem-utama/generator-qr.js?v=5.0',
+  './scanner-kamera/jsqr-engine.js?v=5.0',
+  './scanner-kamera/camera-scanner.js?v=5.0',
+  './sistem-utama/i18n-bahasa.js?v=5.3',
+  './sistem-utama/navigasi-router.js?v=5.3',
+  './sistem-utama/moneyflow.js?v=5.0',
+  './otentikasi-akun/auth.js?v=6.0',
+  './sistem-peserta/peserta.js?v=6.0',
+  './sistem-peserta/favorit-peserta.js?v=6.0',
+  './sistem-peserta/pesan-peserta.js?v=6.0',
+  './sistem-peserta/fast-track.js?v=6.0',
+  './sistem-pembayaran/pembayaran.js?v=6.0',
+  './panel-penyelenggara/kasir-organizer.js?v=6.0',
+  './panel-penyelenggara/pesan-organizer.js?v=6.0',
+  './panel-admin/dashboard-admin.js?v=6.0',
+  './panel-admin/approval-penyelenggara.js?v=6.0',
+  './panel-admin/pantau-aktivitas.js?v=6.0',
+  './panel-admin/audit-feedback.js?v=6.0',
+  './sistem-utama/koordinator-aplikasi.js?v=6.0'
 ];
 
 self.addEventListener('install', (e) => {
   e.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
-      return cache.addAll(ASSETS_TO_CACHE).catch((err) => {
-        console.warn('PWA Asset caching partially completed:', err);
+      return cache.addAll(PRECACHE_ASSETS).catch((err) => {
+        console.warn('[PWA SW] Precache warning:', err);
       });
     })
   );
@@ -45,7 +63,10 @@ self.addEventListener('activate', (e) => {
     caches.keys().then((keys) => {
       return Promise.all(
         keys.map((k) => {
-          if (k !== CACHE_NAME) return caches.delete(k);
+          if (k !== CACHE_NAME) {
+            console.log('[PWA SW] Removing outdated cache:', k);
+            return caches.delete(k);
+          }
         })
       );
     })
@@ -54,17 +75,45 @@ self.addEventListener('activate', (e) => {
 });
 
 self.addEventListener('fetch', (e) => {
-  // Hanya intercept GET requests
+  // Hanya proses request GET
   if (e.request.method !== 'GET') return;
 
-  // Network first, fallback to cache
+  const url = new URL(e.request.url);
+
+  // Jangan cache API dynamic endpoints
+  if (url.pathname.startsWith('/api/')) {
+    e.respondWith(fetch(e.request).catch(() => caches.match(e.request)));
+    return;
+  }
+
+  // HTML Navigation: Network-first, fallback to cache
+  if (e.request.mode === 'navigate') {
+    e.respondWith(
+      fetch(e.request)
+        .then((networkRes) => {
+          const resClone = networkRes.clone();
+          caches.open(CACHE_NAME).then((cache) => cache.put(e.request, resClone));
+          return networkRes;
+        })
+        .catch(() => caches.match('./index.html') || caches.match('./'))
+    );
+    return;
+  }
+
+  // Static Assets (CSS, JS, Fonts, Images): Stale-While-Revalidate
   e.respondWith(
-    fetch(e.request)
-      .then((networkResponse) => {
-        return networkResponse;
-      })
-      .catch(() => {
-        return caches.match(e.request);
-      })
+    caches.match(e.request).then((cachedRes) => {
+      const fetchPromise = fetch(e.request)
+        .then((networkRes) => {
+          if (networkRes && networkRes.status === 200) {
+            const resClone = networkRes.clone();
+            caches.open(CACHE_NAME).then((cache) => cache.put(e.request, resClone));
+          }
+          return networkRes;
+        })
+        .catch(() => cachedRes);
+
+      return cachedRes || fetchPromise;
+    })
   );
 });

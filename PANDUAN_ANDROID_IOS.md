@@ -1,28 +1,36 @@
-# 📱 Panduan Build Aplikasi EventHub ke Android & iOS
+# 📱 Panduan Instalasi & Build Aplikasi EventHub di Seluruh Perangkat
+*(Android, iOS, Windows, macOS, Linux, dan ChromeOS)*
 
-Project **EventHub** kini telah didesain dengan arsitektur **Cross-Platform Mobile-Ready** yang dapat dijalankan dan di-build menjadi aplikasi native untuk **Android** dan **iOS** melalui 2 metode pilihan:
-
----
-
-## 🌟 METODE 1: Progressive Web App (PWA) — Siap Pakai Tanpa Kompilasi
-Metode ini adalah cara paling cepat dan resmi yang didukung penuh oleh Google (Chrome) dan Apple (Safari).
-
-### A. Untuk HP Android:
-1. Buka browser **Google Chrome** di HP Android Anda.
-2. Akses alamat web EventHub (misal: `http://localhost:3000` atau domain hosting Anda).
-3. Klik ikon titik tiga `⋮` di pojok kanan atas browser.
-4. Pilih **"Tambahkan ke Layar Utama"** (*Add to Home Screen*) atau **"Instal Aplikasi"** (*Install App*).
-5. Ikon aplikasi **EventHub** akan muncul di menu aplikasi HP Android Anda dan dapat dibuka secara *fullscreen* tanpa address bar browser, lengkap dengan splash screen dan performa cepat layaknya aplikasi native.
-
-### B. Untuk iPhone / iPad (iOS):
-1. Buka browser **Safari** di iPhone Anda.
-2. Akses alamat web EventHub.
-3. Tekan tombol **Share** (ikon kotak dengan panah ke atas) di bagian bawah layar.
-4. Gulir ke bawah dan pilih **"Tambah ke Layar Utama"** (*Add to Home Screen*).
-5. Tekan **"Tambah"** (*Add*) di pojok kanan atas.
-6. Aplikasi EventHub akan terpasang di Home Screen iPhone dengan icon resmi dan status bar *black-translucent*.
+Project **EventHub** telah dikonfigurasi sebagai **Universal Cross-Platform Application (PWA + Capacitor Native)** yang dapat dipasang dan dijalankan langsung di seluruh jenis perangkat:
 
 ---
+
+## 🌟 METODE 1: Instalasi Instan (PWA Standalone) — Semua Perangkat
+Metode ini tidak membutuhkan kompilasi kode dan didukung penuh oleh Google Chrome, Microsoft Edge, Mozilla Firefox, dan Apple Safari.
+
+### 🚀 Tombol Pasang Cepat di Aplikasi:
+Cukup klik tombol **"📲 Pasang App"** di header navigasi atas atau klik banner **"📲 Pasang Sekarang"** yang muncul di layar.
+
+### A. Untuk HP & Tablet Android:
+1. Buka browser **Google Chrome** di perangkat Android Anda.
+2. Buka URL EventHub (`http://localhost:3000` atau domain online Anda).
+3. Klik tombol **"📲 Pasang Sekarang"** pada banner aplikasi, atau buka menu titik tiga `⋮` > **"Instal Aplikasi"** (*Install App*).
+4. Aplikasi EventHub akan terpasang di laci aplikasi HP dengan ikon resmi, splash screen, dan mode layar penuh (*standalone*).
+
+### B. Untuk iPhone / iPad (Apple iOS):
+1. Buka browser **Safari** di iPhone/iPad Anda.
+2. Buka URL EventHub.
+3. Tekan tombol **Share** (ikon kotak dengan panah ke atas `📤`) di bilah bawah peramban.
+4. Pilih opsi **"Tambah ke Layar Utama"** (*Add to Home Screen* `➕`).
+5. Tekan **"Tambah"** (*Add*) di sudut kanan atas.
+6. Ikon EventHub akan aktif di Home Screen iPhone/iPad Anda dan berjalan sebagai aplikasi mandiri (*fullscreen*).
+
+### C. Untuk PC Laptop / Komputer Desktop (Windows, macOS, Linux, ChromeOS):
+1. Buka browser **Google Chrome** atau **Microsoft Edge** di PC Anda.
+2. Buka URL EventHub (`http://localhost:3000`).
+3. Klik tombol **"📲 Pasang App"** pada header website, ATAU klik ikon komputer/instalasi `📲` di sebelah kanan address bar browser.
+4. Klik **"Install"**.
+5. EventHub akan terbuka di jendela aplikasi desktop tersendiri, memiliki shortcut di desktop & start menu Windows, serta dock aplikasi macOS.
 
 ## 🚀 METODE 2: Build Native APK / AAB (Android) & IPA (iOS) Menggunakan Capacitor
 

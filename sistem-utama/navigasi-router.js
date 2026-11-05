@@ -261,6 +261,9 @@
     html.push(
           '</nav>',
           '<div class="header-actions">',
+            '<button type="button" class="btn-pwa-install" id="header-pwa-install-btn" onclick="EventHub.promptInstallApp()" title="Pasang Aplikasi EventHub di Perangkat">',
+              '<span>📲</span> <span>Pasang App</span>',
+            '</button>',
             (window.EventI18n ? window.EventI18n.renderLanguageSwitcher() : ''),
             '<button class="btn-secondary" style="padding:6px 14px; font-size:0.8rem; border-color:rgba(255,255,255,0.15)" onclick="EventHub.openFeedbackModal()">',
               '⭐ Feedback',

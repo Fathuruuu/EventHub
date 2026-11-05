@@ -816,6 +816,39 @@
           '</button>',
         '</div>'
       );
+    } else if (App.activeModal === 'iosInstallGuide') {
+      html.push(
+        '<div class="modal-header">',
+          '<h3 class="modal-title">📱 Pasang EventHub di iPhone / iPad</h3>',
+          '<button class="modal-close-btn" onclick="EventHub.closeModal()">✕</button>',
+        '</div>',
+        '<div style="padding:14px 0; text-align:center">',
+          '<div style="width:76px; height:76px; border-radius:20px; background:linear-gradient(135deg, #6366f1, #8b5cf6, #ec4899); padding:3px; margin:0 auto 16px; box-shadow:0 8px 25px rgba(99,102,241,0.45)">',
+            '<img src="assets/icon-192.png" alt="EventHub" style="width:100%; height:100%; border-radius:18px; object-fit:cover; display:block">',
+          '</div>',
+          '<h3 style="font-size:1.25rem; font-weight:800; color:#ffffff; margin-bottom:6px">Pasang di Layar Beranda Apple iOS</h3>',
+          '<p style="font-size:0.85rem; color:#94a3b8; max-width:400px; margin:0 auto 20px; line-height:1.6">',
+            'Safari di iOS mendukung pemasangan langsung ke Home Screen layaknya aplikasi native tanpa App Store:',
+          '</p>',
+          '<div class="pwa-ios-steps">',
+            '<div class="pwa-step-item">',
+              '<div class="pwa-step-num">1</div>',
+              '<div class="pwa-step-desc">Tekan tombol <b>Bagikan (Share)</b> <span style="font-size:1.2rem">📤</span> pada bilah menu peramban Safari di bawah layar.</div>',
+            '</div>',
+            '<div class="pwa-step-item">',
+              '<div class="pwa-step-num">2</div>',
+              '<div class="pwa-step-desc">Gulir menu ke bawah lalu pilih opsi <b>"Tambah ke Layar Utama" (Add to Home Screen)</b> ➕.</div>',
+            '</div>',
+            '<div class="pwa-step-item">',
+              '<div class="pwa-step-num">3</div>',
+              '<div class="pwa-step-desc">Tekan <b>"Tambah" (Add)</b> di pojok kanan atas. Ikon EventHub akan langsung muncul di menu aplikasi iPhone/iPad Anda!</div>',
+            '</div>',
+          '</div>',
+          '<button type="button" class="btn-primary" style="margin-top:20px; width:100%" onclick="EventHub.closeModal()">',
+            '✓ Saya Mengerti, Pasang Sekarang',
+          '</button>',
+        '</div>'
+      );
     }
     html.push('</div>');
     backdrop.innerHTML = html.join('');
@@ -2393,7 +2426,54 @@
         img.src = e.target.result;
       };
       reader.readAsDataURL(file);
-    }
+    },
+
+    promptInstallApp: function() {
+      if (Sound) Sound.playClick();
+
+      // Periksa apakah aplikasi sudah berjalan dalam mode standalone (terpasang)
+      if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true) {
+        Router.showToast('✓ Aplikasi EventHub sudah terpasang dan aktif di perangkat Anda!', 'success');
+        return;
+      }
+
+      // Deteksi perangkat iOS (Safari iPhone / iPad)
+      var isIos = /iPhone|iPad|iPod/.test(navigator.userAgent) && !window.MSStream;
+      if (isIos) {
+        this.openIosInstallModal();
+        return;
+      }
+
+      // PWA standard prompt (Android, Windows, macOS, ChromeOS, Linux)
+      if (window._eventhubDeferredPrompt) {
+        window._eventhubDeferredPrompt.prompt();
+        window._eventhubDeferredPrompt.userChoice.then(function(choiceResult) {
+          if (choiceResult.outcome === 'accepted') {
+            Router.showToast('Pemasangan aplikasi sedang diproses...', 'info');
+            EventHub.dismissInstallBanner(true);
+          }
+          window._eventhubDeferredPrompt = null;
+        });
+      } else {
+        Router.showToast('Untuk memasang di PC/Laptop: Klik ikon instalasi 📲 di sebelah kanan address bar browser Anda, lalu pilih "Install".', 'info', 6000);
+      }
+    },
+
+    openIosInstallModal: function() {
+      App.activeModal = 'iosInstallGuide';
+      renderModal();
+    },
+
+    dismissInstallBanner: function(permanent) {
+      var banner = document.getElementById('pwa-install-banner');
+      if (banner) {
+        banner.style.display = 'none';
+      }
+      try {
+        sessionStorage.setItem('pwa_banner_dismissed', '1');
+        if (permanent) localStorage.setItem('pwa_app_installed', '1');
+      } catch (e) {}
+    },
   };
 
   function renderApp() {
@@ -2483,4 +2563,42 @@
       EventHub.closeModal();
     }
   });
+
+  // Progressive Web App (PWA) Lifecycle & Install Prompt Manager
+  window.addEventListener('beforeinstallprompt', function(e) {
+    e.preventDefault();
+    window._eventhubDeferredPrompt = e;
+    var banner = document.getElementById('pwa-install-banner');
+    var isDismissed = false;
+    try { isDismissed = !!sessionStorage.getItem('pwa_banner_dismissed') || !!localStorage.getItem('pwa_app_installed'); } catch (err) {}
+    var isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+    if (banner && !isDismissed && !isStandalone) {
+      setTimeout(function() { banner.style.display = 'flex'; }, 2000);
+    }
+  });
+
+  window.addEventListener('appinstalled', function() {
+    window._eventhubDeferredPrompt = null;
+    EventHub.dismissInstallBanner(true);
+    Router.showToast('🎉 Aplikasi EventHub berhasil dipasang di perangkat ini!', 'success', 5000);
+    var headerBtn = document.getElementById('header-pwa-install-btn');
+    if (headerBtn) headerBtn.style.display = 'none';
+  });
+
+  // Inisialisasi status PWA & tampilkan banner pemasangan otomatis jika belum terpasang
+  setTimeout(function() {
+    var isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+    var banner = document.getElementById('pwa-install-banner');
+    var headerBtn = document.getElementById('header-pwa-install-btn');
+    if (isStandalone) {
+      if (banner) banner.style.display = 'none';
+      if (headerBtn) headerBtn.style.display = 'none';
+    } else {
+      var isDismissed = false;
+      try { isDismissed = !!sessionStorage.getItem('pwa_banner_dismissed') || !!localStorage.getItem('pwa_app_installed'); } catch (err) {}
+      if (banner && !isDismissed) {
+        banner.style.display = 'flex';
+      }
+    }
+  }, 2500);
 })(window);

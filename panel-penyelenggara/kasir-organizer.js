@@ -652,7 +652,7 @@
                 '</div>',
                 // Controls Overlay for Mobile Android & iOS
                 '<div class="scanner-controls-overlay" style="display:' + (isCamRunning ? 'flex' : 'none') + '">',
-                  '<button type="button" class="scanner-ctrl-btn" onclick="EventHub.flipCamera(\'organizer-video\')" title="Balik Kamera Depan / Belakang">',
+                  '<button type="button" class="scanner-ctrl-btn btn-cam-flip" onclick="EventHub.flipCamera(\'organizer-video\')" title="Balik Kamera Depan / Belakang">',
                     '<span>🔄</span> <span>Flip</span>',
                   '</button>',
                   '<button type="button" class="scanner-ctrl-btn" id="btn-org-torch" onclick="EventHub.toggleTorch(\'btn-org-torch\')" title="Lampu Flash Senter">',

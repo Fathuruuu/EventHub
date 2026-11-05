@@ -765,9 +765,9 @@
           '<video id="quick-scanner-video" playsinline webkit-playsinline autoplay muted style="width:100%; height:100%; object-fit:cover; display:block"></video>',
           '<canvas id="quick-scanner-canvas" style="display:none"></canvas>',
           '<div class="scanner-laser-beam" style="animation:laserSweep 1.8s infinite"></div>',
-          // Mobile Controls Overlay (Flip Kamera Depan/Belakang, Flash Senter, dan Efek Suara Blip)
+          // Mobile Controls Overlay (Flip Kamera Depan/Belakang Khusus Android & iOS, Flash Senter, dan Efek Suara Blip)
           '<div class="scanner-controls-overlay">',
-            '<button type="button" class="scanner-ctrl-btn" onclick="EventHub.flipCamera(\'quick-scanner-video\')" title="Balik Kamera Depan / Belakang">',
+            '<button type="button" class="scanner-ctrl-btn btn-cam-flip" onclick="EventHub.flipCamera(\'quick-scanner-video\')" title="Balik Kamera Depan / Belakang (Khusus HP/Tablet)">',
               '<span>🔄</span> <span id="lbl-flip-cam">Flip</span>',
             '</button>',
             '<div style="display:flex; gap:6px">',

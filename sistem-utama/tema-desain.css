@@ -1439,3 +1439,15 @@ main#app-root {
   border-color: #fcd34d !important;
   box-shadow: 0 0 16px rgba(245, 158, 11, 0.6) !important;
 }
+
+/* Sembunyikan Tombol Flip Kamera di PC / Desktop */
+.btn-cam-flip {
+  display: none !important;
+}
+
+/* Hanya tampilkan tombol Flip Kamera di perangkat mobile (Android & iOS) / touch screen */
+@media (pointer: coarse) and (max-width: 1024px), (max-width: 768px) {
+  .btn-cam-flip {
+    display: inline-flex !important;
+  }
+}

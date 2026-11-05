@@ -283,16 +283,12 @@
             }
           }
 
-          // 3. KUNCI PEMINDAIAN & EFEK BLIP: Hanya proses 1 KALI saat kode terdeteksi!
+          // 3. KUNCI PEMINDAIAN: Hanya proses 1 KALI saat kode terdeteksi!
           if (detectedCode && detectedCode !== lastScannedCode) {
             // LANGSUNG KUNCI scanner agar tidak looping notifikasi berkali-kali!
             self.pause();
             lastScannedCode = detectedCode;
 
-            // EFEK SUARA BLIP DAN GETARAN HAPTIC SCANNER (Android & iOS)
-            if (window.EventAudio && typeof window.EventAudio.playBlip === 'function') {
-              window.EventAudio.playBlip();
-            }
             if (navigator.vibrate) {
               try { navigator.vibrate([45]); } catch (e) {}
             }

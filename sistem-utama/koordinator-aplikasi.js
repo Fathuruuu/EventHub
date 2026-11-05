@@ -765,19 +765,14 @@
           '<video id="quick-scanner-video" playsinline webkit-playsinline autoplay muted style="width:100%; height:100%; object-fit:cover; display:block"></video>',
           '<canvas id="quick-scanner-canvas" style="display:none"></canvas>',
           '<div class="scanner-laser-beam" style="animation:laserSweep 1.8s infinite"></div>',
-          // Mobile Controls Overlay (Flip Kamera Depan/Belakang Khusus Android & iOS, Flash Senter, dan Efek Suara Blip)
+          // Mobile Controls Overlay (Flip Kamera Depan/Belakang Khusus Android & iOS & Flash Senter)
           '<div class="scanner-controls-overlay">',
             '<button type="button" class="scanner-ctrl-btn btn-cam-flip" onclick="EventHub.flipCamera(\'quick-scanner-video\')" title="Balik Kamera Depan / Belakang (Khusus HP/Tablet)">',
               '<span>🔄</span> <span id="lbl-flip-cam">Flip</span>',
             '</button>',
-            '<div style="display:flex; gap:6px">',
-              '<button type="button" class="scanner-ctrl-btn" id="btn-quick-torch" onclick="EventHub.toggleTorch(\'btn-quick-torch\')" title="Lampu Flash Senter Kamera (Android / iOS)">',
-                '<span>⚡</span> <span>Flash</span>',
-              '</button>',
-              '<button type="button" class="scanner-ctrl-btn" id="btn-quick-sound" onclick="EventHub.toggleScanSound(\'btn-quick-sound\')" title="Efek Suara Blip Scanner">',
-                '<span>🔊</span> <span>Blip</span>',
-              '</button>',
-            '</div>',
+            '<button type="button" class="scanner-ctrl-btn" id="btn-quick-torch" onclick="EventHub.toggleTorch(\'btn-quick-torch\')" title="Lampu Flash Senter Kamera (Android / iOS)">',
+              '<span>⚡</span> <span>Flash</span>',
+            '</button>',
           '</div>',
           '<div id="quick-scanner-fallback" style="display:none; position:absolute; inset:0; background:#0f172a; flex-direction:column; align-items:center; justify-content:center; padding:16px; text-align:center; z-index:5">',
             '<div style="font-size:2.2rem; margin-bottom:6px">📷</div>',
@@ -2328,22 +2323,6 @@
       }
     },
 
-    toggleScanSound: function(btnId) {
-      if (!window.EventAudio) return;
-      var currentMuted = window.EventAudio.isMuted();
-      window.EventAudio.setMuted(!currentMuted);
-      var btn = document.getElementById(btnId || 'btn-quick-sound');
-      if (btn) {
-        if (!currentMuted) {
-          btn.innerHTML = '<span>🔇</span> <span>Mute</span>';
-          Router.showToast('Efek suara blip scanner dimatikan (Muted).', 'info');
-        } else {
-          btn.innerHTML = '<span>🔊</span> <span>Blip</span>';
-          window.EventAudio.playBlip();
-          Router.showToast('Efek suara blip scanner diaktifkan.', 'success');
-        }
-      }
-    },
 
     doQuickScanInput: function() {
       var inputEl = document.getElementById('quick-ticket-input');

@@ -13,7 +13,10 @@
   var isPaused = false;
   var autoResumeTimeout = null;
   var currentVideoElement = null;
-
+  var currentFacingMode = 'environment';
+  var isTorchOn = false;
+  var lastScanCallback = null;
+  var lastErrorCallback = null;
   var ScannerService = {
     isRunning: function() {
       return !!(activeStream && activeStream.active && activeStream.getVideoTracks().some(function(t) { return t.readyState === 'live'; }));
@@ -39,6 +42,53 @@
       autoResumeTimeout = null;
     },
 
+    getFacingMode: function() {
+      return currentFacingMode;
+    },
+
+    flipCamera: async function(videoElement, onScanCallback, onErrorCallback) {
+      currentFacingMode = (currentFacingMode === 'environment') ? 'user' : 'environment';
+      var targetEl = videoElement || currentVideoElement;
+      var cbScan = onScanCallback || lastScanCallback;
+      var cbErr = onErrorCallback || lastErrorCallback;
+      if (targetEl) {
+        return await this.startCamera(targetEl, cbScan, cbErr);
+      }
+      return false;
+    },
+
+    hasTorch: function() {
+      if (!activeStream) return false;
+      var track = activeStream.getVideoTracks()[0];
+      if (!track || !track.getCapabilities) return false;
+      try {
+        var capabilities = track.getCapabilities();
+        return !!(capabilities && capabilities.torch);
+      } catch (e) {
+        return false;
+      }
+    },
+
+    isTorchActive: function() {
+      return isTorchOn;
+    },
+
+    toggleTorch: async function() {
+      if (!activeStream) return false;
+      var track = activeStream.getVideoTracks()[0];
+      if (!track) return false;
+      try {
+        isTorchOn = !isTorchOn;
+        await track.applyConstraints({
+          advanced: [{ torch: isTorchOn }]
+        });
+        return isTorchOn;
+      } catch (e) {
+        console.warn('Torch constraint warning:', e);
+        isTorchOn = false;
+        return false;
+      }
+    },
     getAvailableCameras: async function() {
       if (!navigator.mediaDevices || !navigator.mediaDevices.enumerateDevices) {
         return [];
@@ -64,6 +114,8 @@
         return false;
       }
       currentVideoElement = videoElement;
+      lastScanCallback = onScanCallback;
+      lastErrorCallback = onErrorCallback;
 
       if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
         if (onErrorCallback) onErrorCallback('Browser ini tidak mendukung akses kamera (WebRTC).');
@@ -74,7 +126,7 @@
         audio: false,
         video: preferredDeviceId
           ? { deviceId: { exact: preferredDeviceId } }
-          : { facingMode: { ideal: 'environment' }, width: { ideal: 1280 }, height: { ideal: 720 } }
+          : { facingMode: { ideal: currentFacingMode }, width: { ideal: 1280 }, height: { ideal: 720 } }
       };
 
       try {
@@ -135,6 +187,7 @@
     stopCamera: function(videoElement) {
       isScanning = false;
       isPaused = false;
+      isTorchOn = false;
       lastScannedCode = null;
       clearTimeout(autoResumeTimeout);
       autoResumeTimeout = null;
@@ -225,11 +278,19 @@
             }
           }
 
-          // 3. KUNCI PEMINDAIAN: Hanya proses 1 KALI saat kode terdeteksi!
+          // 3. KUNCI PEMINDAIAN & EFEK BLIP: Hanya proses 1 KALI saat kode terdeteksi!
           if (detectedCode && detectedCode !== lastScannedCode) {
             // LANGSUNG KUNCI scanner agar tidak looping notifikasi berkali-kali!
             self.pause();
             lastScannedCode = detectedCode;
+
+            // EFEK SUARA BLIP DAN GETARAN HAPTIC SCANNER (Android & iOS)
+            if (window.EventAudio && typeof window.EventAudio.playBlip === 'function') {
+              window.EventAudio.playBlip();
+            }
+            if (navigator.vibrate) {
+              try { navigator.vibrate([45]); } catch (e) {}
+            }
 
             // Panggil fungsi validasi tiket hanya 1 KALI
             if (onScanCallback) {

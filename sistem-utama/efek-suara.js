@@ -28,6 +28,30 @@
     },
 
     /**
+     * Commercial laser scanner blip / beep feedback
+     */
+    playBlip: function() {
+      if (isMuted) return;
+      var c = getContext();
+      if (!c) return;
+      try {
+        var now = c.currentTime;
+        var osc = c.createOscillator();
+        var gain = c.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(2200, now);
+        osc.frequency.exponentialRampToValueAtTime(2600, now + 0.03);
+        gain.gain.setValueAtTime(0.001, now);
+        gain.gain.exponentialRampToValueAtTime(0.4, now + 0.015);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.08);
+        osc.connect(gain);
+        gain.connect(c.destination);
+        osc.start(now);
+        osc.stop(now + 0.09);
+      } catch (e) {}
+    },
+
+    /**
      * Dual-tone harmonic chime for successful scan, payment, or completion
      */
     playSuccess: function() {

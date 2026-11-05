@@ -765,6 +765,20 @@
           '<video id="quick-scanner-video" playsinline webkit-playsinline autoplay muted style="width:100%; height:100%; object-fit:cover; display:block"></video>',
           '<canvas id="quick-scanner-canvas" style="display:none"></canvas>',
           '<div class="scanner-laser-beam" style="animation:laserSweep 1.8s infinite"></div>',
+          // Mobile Controls Overlay (Flip Kamera Depan/Belakang, Flash Senter, dan Efek Suara Blip)
+          '<div class="scanner-controls-overlay">',
+            '<button type="button" class="scanner-ctrl-btn" onclick="EventHub.flipCamera(\'quick-scanner-video\')" title="Balik Kamera Depan / Belakang">',
+              '<span>🔄</span> <span id="lbl-flip-cam">Flip</span>',
+            '</button>',
+            '<div style="display:flex; gap:6px">',
+              '<button type="button" class="scanner-ctrl-btn" id="btn-quick-torch" onclick="EventHub.toggleTorch(\'btn-quick-torch\')" title="Lampu Flash Senter Kamera (Android / iOS)">',
+                '<span>⚡</span> <span>Flash</span>',
+              '</button>',
+              '<button type="button" class="scanner-ctrl-btn" id="btn-quick-sound" onclick="EventHub.toggleScanSound(\'btn-quick-sound\')" title="Efek Suara Blip Scanner">',
+                '<span>🔊</span> <span>Blip</span>',
+              '</button>',
+            '</div>',
+          '</div>',
           '<div id="quick-scanner-fallback" style="display:none; position:absolute; inset:0; background:#0f172a; flex-direction:column; align-items:center; justify-content:center; padding:16px; text-align:center; z-index:5">',
             '<div style="font-size:2.2rem; margin-bottom:6px">📷</div>',
             '<b style="color:#ffffff; font-size:0.95rem">Kamera Belum Aktif</b>',
@@ -2228,6 +2242,74 @@
       var resBox = document.getElementById('quick-scan-result-container');
       if (resBox) resBox.innerHTML = '';
       Router.showToast('Kamera siap memindai tiket berikutnya.', 'info');
+    },
+
+    flipCamera: async function(videoId) {
+      if (!window.EventScannerService || !window.EventScannerService.isRunning()) {
+        Router.showToast('Kamera belum aktif.', 'warning');
+        return;
+      }
+      var videoEl = document.getElementById(videoId || 'quick-scanner-video');
+      Router.showToast('Membalik kamera...', 'info');
+      var newMode = await window.EventScannerService.flipCamera(
+        videoEl,
+        function(code) {
+          if (videoId === 'organizer-video') {
+            EventHub.handleCameraScan(code);
+          } else if (videoId === 'admin-video') {
+            EventHub.handleAdminCameraScan(code);
+          } else {
+            EventHub.processTicketScan(code);
+          }
+        },
+        function(err) {
+          Router.showToast(err, 'error');
+        }
+      );
+      var modeName = (newMode === 'user') ? 'Depan (Selfie)' : 'Belakang (Utama)';
+      Router.showToast('Kamera aktif: ' + modeName, 'success');
+      var flipLbl = document.getElementById('lbl-flip-cam');
+      if (flipLbl) flipLbl.textContent = 'Flip: ' + (newMode === 'user' ? 'Depan' : 'Belakang');
+    },
+
+    toggleTorch: async function(btnId) {
+      if (!window.EventScannerService || !window.EventScannerService.isRunning()) {
+        Router.showToast('Aktifkan kamera terlebih dahulu untuk menyalakan flash.', 'warning');
+        return;
+      }
+      var hasTorch = window.EventScannerService.hasTorch();
+      var isTorch = await window.EventScannerService.toggleTorch();
+      var btn = document.getElementById(btnId || 'btn-quick-torch');
+      if (btn) {
+        if (isTorch) {
+          btn.classList.add('active');
+          Router.showToast('⚡ Lampu flash senter kamera aktif.', 'success');
+        } else {
+          btn.classList.remove('active');
+          if (!hasTorch) {
+            Router.showToast('Fitur lampu flash tidak didukung kamera/browser saat ini.', 'info');
+          } else {
+            Router.showToast('Lampu flash kamera dimatikan.', 'info');
+          }
+        }
+      }
+    },
+
+    toggleScanSound: function(btnId) {
+      if (!window.EventAudio) return;
+      var currentMuted = window.EventAudio.isMuted();
+      window.EventAudio.setMuted(!currentMuted);
+      var btn = document.getElementById(btnId || 'btn-quick-sound');
+      if (btn) {
+        if (!currentMuted) {
+          btn.innerHTML = '<span>🔇</span> <span>Mute</span>';
+          Router.showToast('Efek suara blip scanner dimatikan (Muted).', 'info');
+        } else {
+          btn.innerHTML = '<span>🔊</span> <span>Blip</span>';
+          window.EventAudio.playBlip();
+          Router.showToast('Efek suara blip scanner diaktifkan.', 'success');
+        }
+      }
     },
 
     doQuickScanInput: function() {
